@@ -17,6 +17,20 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// --------------------------------------------
+// SEED FAKE USERS AND POSTS (Only runs once)
+// --------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    // Access required services from the container
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+    // Call the method that seeds 5 users, each with 6 posts
+    await DataSeeder.SeedUserAndPosts(context, userManager);
+}
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
