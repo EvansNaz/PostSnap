@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using PostSnap.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,10 +38,11 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Posts}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.MapRazorPages()
    .WithStaticAssets();
 
 app.Run();
+

@@ -1,0 +1,37 @@
+﻿@model PostSnap.Models.Post
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = Model.Title;
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get logged-in user's ID
+
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg rounded">
+                <div class="card-body">
+                    <h1 class="card-title">@Model.Title</h1>
+                    <p class="text-muted">
+                        By <strong>@(Model.User?.UserName ?? "Unknown")</strong>
+                        on @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                    </p>
+                    <hr />
+                    <p class="card-text">@Model.Body</p>
+                </div>
+            </div>
+            <div class="container mt-3">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary ">Back to Posts</a>
+                    @if (Model.UserId == userId)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning ms-auto">Edit</a>
+                    }
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+﻿@model PostSnap.Dtos.CreatePostDto
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<!-- Heading Section -->
+<h1 class="text-center my-4">Create a New Post</h1>
+
+<h4 class="text-center mb-4">Post Details</h4>
+<hr />
+
+<!-- Form Container (Centered and Responsive) -->
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6 col-xl-5">
+        <!-- Card for Form -->
+        <div class="card p-4 shadow-lg rounded">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Title Field -->
+                <div class="form-group">
+                    <label asp-for="Title" class="control-label font-weight-bold"></label>
+                    <input asp-for="Title" class="form-control form-control-lg" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <!-- Body Field -->
+                <div class="form-group">
+                    <label asp-for="Body" class="control-label font-weight-bold"></label>
+                    <textarea asp-for="Body" class="form-control form-control-lg" rows="6"></textarea>
+                    <span asp-validation-for="Body" class="text-danger"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group">
+                    <input type="submit" value="Create Post" class="btn btn-primary btn-block btn-lg" />
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Back Link -->
+<div class="text-center mt-3">
+    <a asp-action="Index" class="btn btn-link">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

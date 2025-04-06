@@ -1,0 +1,39 @@
+﻿@model IEnumerable<PostSnap.Models.Post>
+
+@{
+    ViewData["Title"] = "Latest Posts";
+}
+
+<h1 class="text-center my-4">Latest Posts</h1>
+
+<div class="container">
+    <div class="row justify-content-center">
+        @foreach (var post in Model)
+        {
+            <div class="col-md-8 mb-4">
+                <div class="card shadow-lg rounded">
+                    <div class="card-body">
+                        <h3 class="card-title">@post.Title</h3>
+                        <p class="text-muted">By <strong>@(post.User?.UserName ?? "Unknown")</strong> on @post.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                        <p class="card-text">
+                            @if (post.Body.Length > 200)
+                            {
+                                @post.Body.Substring(0, 200)
+                                @* .. <!--Show only first 200 chars-- > *@
+                                    }
+                            else
+                            {
+                                @post.Body
+                            }
+                        </p>
+                        <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-primary">Read More</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<p class="text-center mt-4">
+    <a asp-action="Create" class="btn btn-success">Create New Post</a>
+</p>
