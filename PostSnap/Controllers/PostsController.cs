@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using PostSnap.Data;
 using PostSnap.Dtos;
 using PostSnap.Models;
+using X.PagedList;
+using X.PagedList.Extensions;
+using X.PagedList.Mvc.Core;
 
 namespace PostSnap.Controllers
 {
@@ -23,15 +26,20 @@ namespace PostSnap.Controllers
         }
 
         // GET: Posts
-        public async Task<IActionResult> Index()
+        public  IActionResult Index(int? page)
         {
             try
             {
-                var posts = await _context.Posts
+                int pageSize = 5;
+                int pageNumber = page ?? 1;
+                //Fetch the posts for the current page
+                var posts =  _context.Posts
                     .Where(p => !p.IsDeleted) // Exclude soft-deleted posts
                     .Include(p => p.User) // Include user data if needed
                     .OrderByDescending(p => p.CreatedAt) // Show newest posts first
-                    .ToListAsync();
+                    .ToPagedList(pageNumber, pageSize);
+
+
 
                 return View(posts);
             }

@@ -1,11 +1,31 @@
-﻿@model IEnumerable<PostSnap.Models.Post>
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<PostSnap.Models.Post>
+
 
 @{
     ViewData["Title"] = "Latest Posts";
 }
+<head>
+    <style>
+        .pagination .page-link {
+            color: #007bff;
+            margin: 0 3px;
+            border-radius: 10px;
+        }
 
+        .pagination .active .page-link {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+    </style>
+</head>
 <h1 class="text-center my-4">Latest Posts</h1>
-
+<p class="text-center mt-4">
+    <a asp-action="Create" class="btn btn-success">Create New Post</a>
+</p>
 <div class="container">
     <div class="row justify-content-center">
         @foreach (var post in Model)
@@ -20,7 +40,7 @@
                             {
                                 @post.Body.Substring(0, 200)
                                 @* .. <!--Show only first 200 chars-- > *@
-                                    }
+                            }
                             else
                             {
                                 @post.Body
@@ -33,7 +53,35 @@
         }
     </div>
 </div>
+<!-- Pagination Controls -->
 
-<p class="text-center mt-4">
-    <a asp-action="Create" class="btn btn-success">Create New Post</a>
-</p>
+<div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+            new PagedListRenderOptions
+    {
+        UlElementClasses = new[] { "pagination" },
+        LiElementClasses = new[] { "page-item" },
+        PageClasses = new[] { "page-link" },
+
+        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+        DisplayLinkToNextPage = PagedListDisplayMode.Never,
+
+        DisplayLinkToIndividualPages = true,
+        MaximumPageNumbersToDisplay = 5, // show 5 pages at once
+
+                // Enable ellipses for skipped pages
+        EllipsesFormat = "...", // after or before + or - 5 items
+        LinkToFirstPageFormat = "« First",
+        LinkToLastPageFormat = "Last »",
+    })
+</div>
+
+
+
+
+
+
+
+
