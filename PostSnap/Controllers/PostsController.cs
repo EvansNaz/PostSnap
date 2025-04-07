@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,20 +27,34 @@ namespace PostSnap.Controllers
         }
 
         // GET: Posts
-        public  IActionResult Index(int? page)
+        public  IActionResult Index(string searchTerm, int? page)
         {
             try
             {
                 int pageSize = 5;
                 int pageNumber = page ?? 1;
+
+
                 //Fetch the posts for the current page
-                var posts =  _context.Posts
+                IQueryable<Post> postsQuery = _context.Posts
                     .Where(p => !p.IsDeleted) // Exclude soft-deleted posts
-                    .Include(p => p.User) // Include user data if needed
+                    .Include(p => p.User); // Include user data if needed
+
+                //if searchTerm exists filter by Title or Body
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    postsQuery = postsQuery.Where(p =>
+                    p.Title.Contains(searchTerm) || 
+                    p.Body.Contains(searchTerm));
+                }
+
+                //Order and page the result
+                var posts = postsQuery
                     .OrderByDescending(p => p.CreatedAt) // Show newest posts first
                     .ToPagedList(pageNumber, pageSize);
 
-
+                //Keep searchTerm in View
+                ViewData["CurrentFilter"] = searchTerm;
 
                 return View(posts);
             }

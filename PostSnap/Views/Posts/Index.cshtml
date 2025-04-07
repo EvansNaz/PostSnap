@@ -18,11 +18,36 @@
             background-color: #007bff;
             color: white;
             border-color: #007bff;
+
+        }
+
+        svg {
+            stroke: currentColor;
+            min-width: 20px;
+            height: 25px;
+            stroke-width: 1.5px;
         }
 
     </style>
 </head>
 <h1 class="text-center my-4">Latest Posts</h1>
+
+<!--Search Bar-->
+<nav class="navbar navbar-light  justify-content-center">
+
+<form asp-action="Index" method="get" class="form-inline">
+    <div class="input-group">
+        <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control mr-sm-2" placeholder="Search posts" />
+            <button type="submit" class="btn btn-outline-success " >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="-1 -1 18 18">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                </svg>
+            </button>
+            
+        </div>
+</form>
+</nav>
+
 <p class="text-center mt-4">
     <a asp-action="Create" class="btn btn-success">Create New Post</a>
 </p>
