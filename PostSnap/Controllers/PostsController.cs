@@ -27,43 +27,49 @@ namespace PostSnap.Controllers
         }
 
         // GET: Posts
-        public  IActionResult Index(string searchTerm, int? page)
+        public IActionResult Index(string searchTerm, string sortOrder, int? page)
         {
             try
             {
                 int pageSize = 5;
                 int pageNumber = page ?? 1;
 
-
-                //Fetch the posts for the current page
+                // Fetch posts that aren't soft-deleted
                 IQueryable<Post> postsQuery = _context.Posts
-                    .Where(p => !p.IsDeleted) // Exclude soft-deleted posts
-                    .Include(p => p.User); // Include user data if needed
+                    .Where(p => !p.IsDeleted)
+                    .Include(p => p.User);
 
-                //if searchTerm exists filter by Title or Body
+                // Apply search filter
                 if (!string.IsNullOrEmpty(searchTerm))
                 {
                     postsQuery = postsQuery.Where(p =>
-                    p.Title.Contains(searchTerm) || 
-                    p.Body.Contains(searchTerm));
+                        p.Title.Contains(searchTerm) ||
+                        p.Body.Contains(searchTerm));
                 }
 
-                //Order and page the result
-                var posts = postsQuery
-                    .OrderByDescending(p => p.CreatedAt) // Show newest posts first
-                    .ToPagedList(pageNumber, pageSize);
+                // Apply sorting
+                postsQuery = sortOrder switch
+                {
+                    "oldest" => postsQuery.OrderBy(p => p.CreatedAt),
+                    "title_asc" => postsQuery.OrderBy(p => p.Title),
+                    _ => postsQuery.OrderByDescending(p => p.CreatedAt),
+                };
 
-                //Keep searchTerm in View
+                // Paginate results
+                var posts = postsQuery.ToPagedList(pageNumber, pageSize);
+
+                // Pass data to view
+                ViewData["CurrentSort"] = sortOrder;
                 ViewData["CurrentFilter"] = searchTerm;
 
                 return View(posts);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine(ex.Message); // Log the error
-                return View("Error"); // Show error view if something goes wrong
+                return View("Error");
             }
         }
+
 
         // GET: Posts/Details/5
         [Authorize]

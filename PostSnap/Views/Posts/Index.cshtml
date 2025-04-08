@@ -4,7 +4,7 @@
 
 
 @{
-    ViewData["Title"] = "Latest Posts";
+    ViewData["Title"] = "PostSnap";
 }
 <head>
     <style>
@@ -21,32 +21,46 @@
 
         }
 
-        svg {
-            stroke: currentColor;
-            min-width: 20px;
-            height: 25px;
-            stroke-width: 1.5px;
+        .form-select:focus,.form-control:focus {
+            border-color: #008000;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(0, 220, 0, 0.6);
         }
 
     </style>
 </head>
-<h1 class="text-center my-4">Latest Posts</h1>
+<h1 class="text-center my-4">PostSnap</h1>
 
-<!--Search Bar-->
-<nav class="navbar navbar-light  justify-content-center">
 
-<form asp-action="Index" method="get" class="form-inline">
-    <div class="input-group">
-        <input type="text" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control mr-sm-2" placeholder="Search posts" />
-            <button type="submit" class="btn btn-outline-success " >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="-1 -1 18 18">
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                </svg>
-            </button>
-            
-        </div>
-</form>
+
+<!-- Search Bar -->
+<nav class="navbar navbar-light justify-content-center mb-3">
+    <form asp-action="Index" method="get" class="form-inline d-flex">
+        <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]"/>
+        <input type="search" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control mr-2" placeholder="Search posts" />
+        <button type="submit" class="btn btn-outline-success">
+            🔍
+        </button>
+    </form>
 </nav>
+
+<!-- Sort Dropdown -->
+<div class="d-flex justify-content-center mb-3">
+    <form asp-action="Index" method="get" class="form-inline">
+        <input type="hidden" name="searchTerm" value="@ViewData["CurrentFilter"]" />
+        <select name="sortOrder" class="form-select mr-2" onchange="this.form.submit()">
+            @{
+                var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";//if [Currentsort] is null Tostring() is not called and becomes ""
+
+                //if the user selects an option then it stays selected even if additional requests are happening
+                <option value="" selected="@(currentSort == "" ? "selected" : null)">Newest</option>
+                <option value="oldest" selected="@(currentSort == "oldest" ? "selected" : null)">Oldest</option>
+                <option value="title_asc" selected="@(currentSort == "title_asc" ? "selected" : null)">Title A-Z</option>
+            }
+        </select>
+    </form>
+</div>
+
+
 
 <p class="text-center mt-4">
     <a asp-action="Create" class="btn btn-success">Create New Post</a>
@@ -63,7 +77,7 @@
                         <p class="card-text">
                             @if (post.Body.Length > 200)
                             {
-                                @post.Body.Substring(0, 200)
+                                @post.Body.Substring(0, 200)<text>...</text> 
                                 @* .. <!--Show only first 200 chars-- > *@
                             }
                             else
@@ -81,15 +95,20 @@
 <!-- Pagination Controls -->
 
 <div class="d-flex justify-content-center mt-4">
-    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }),
+    @Html.PagedListPager(Model, page => Url.Action("Index", new
+        {
+            page,
+            searchTerm = ViewData["CurrentFilter"],// those viewdata keep the select option so the pagination dont change the select option and search
+            sortOrder = ViewData["CurrentSort"]
+        }),
             new PagedListRenderOptions
     {
         UlElementClasses = new[] { "pagination" },
         LiElementClasses = new[] { "page-item" },
         PageClasses = new[] { "page-link" },
 
-        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+        DisplayLinkToLastPage = PagedListDisplayMode.Never,
         DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
         DisplayLinkToNextPage = PagedListDisplayMode.Never,
 
@@ -98,8 +117,8 @@
 
                 // Enable ellipses for skipped pages
         EllipsesFormat = "...", // after or before + or - 5 items
-        LinkToFirstPageFormat = "« First",
-        LinkToLastPageFormat = "Last »",
+        LinkToFirstPageFormat = "",
+        LinkToLastPageFormat = "",
     })
 </div>
 
