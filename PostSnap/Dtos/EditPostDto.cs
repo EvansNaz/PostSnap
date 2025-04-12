@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PostSnap.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace PostSnap.Dtos
 {
@@ -13,5 +14,15 @@ namespace PostSnap.Dtos
         [Required]
         [StringLength(1000, MinimumLength = 10, ErrorMessage = "Body is between 10 and 1000 Characters")]
         public string Body { get; set; }
+
+        //for adding new image
+        [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif" })]
+        [MaxFileSize(2 * 1024 * 1024)] // 2 MB
+        public IFormFile? ImageUpload { get; set; }
+
+        //for fetching existing image
+        public string? ImageFileName { get; set; }
+
+
     }
 }

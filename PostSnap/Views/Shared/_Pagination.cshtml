@@ -1,0 +1,34 @@
+﻿@model X.PagedList.IPagedList<PostSnap.Models.Post>
+@using X.PagedList.Mvc.Core
+
+@{
+    var searchTerm = ViewData["CurrentFilter"];
+    var sortOrder = ViewData["CurrentSort"];
+}
+
+<div class="d-flex justify-content-center mt-4">
+    @Html.PagedListPager(Model, page => Url.Action("Index", new
+        {
+            page,
+            searchTerm,
+            sortOrder
+        }),
+            new PagedListRenderOptions
+    {
+        UlElementClasses = new[] { "pagination" },
+        LiElementClasses = new[] { "page-item" },
+        PageClasses = new[] { "page-link" },
+
+        DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+        DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+        DisplayLinkToNextPage = PagedListDisplayMode.Never,
+
+        DisplayLinkToIndividualPages = true,
+        MaximumPageNumbersToDisplay = 5,
+
+        EllipsesFormat = "...",
+        LinkToFirstPageFormat = "{0}",
+        LinkToLastPageFormat = "{0}",
+    })
+</div>

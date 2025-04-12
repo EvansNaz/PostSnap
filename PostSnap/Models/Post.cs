@@ -17,6 +17,8 @@ namespace PostSnap.Models
         [Required]
         public string Body { get; set; }
 
+        public string? ImageFileName { get; set; }
+
         [Required]
         public PostStatus Status { get; set; } = PostStatus.Published;
 

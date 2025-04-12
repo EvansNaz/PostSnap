@@ -17,6 +17,16 @@
                         By <strong>@(Model.User?.UserName ?? "Unknown")</strong>
                         on @Model.CreatedAt.ToString("MMMM dd, yyyy")
                     </p>
+                    @if (!string.IsNullOrEmpty(@Model.ImageFileName) && System.IO.File.Exists($"wwwroot\\uploads\\{Model.ImageFileName}"))
+                    {
+                        <div class="image-container">
+                            <a href="/uploads/@Model.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Title">
+
+                                <img src="/uploads/@Model.ImageFileName" class="card-img-custom" alt="Post image" />
+                            </a>
+                        </div>
+
+                    }
                     <hr />
                     <p class="card-text">@Model.Body</p>
                 </div>

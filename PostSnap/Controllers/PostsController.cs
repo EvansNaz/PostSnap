@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using PostSnap.Data;
 using PostSnap.Dtos;
 using PostSnap.Models;
@@ -25,6 +26,8 @@ namespace PostSnap.Controllers
         {
             _context = context;
         }
+
+
 
         // GET: Posts
         public IActionResult Index(string searchTerm, string sortOrder, int? page)
@@ -143,6 +146,13 @@ namespace PostSnap.Controllers
                 IsDeleted = false
             };
 
+            //Image Upload 
+
+            if (postDto.ImageUpload != null && postDto.ImageUpload.Length > 0)
+            {
+                post.ImageFileName = await SaveImageAsync(postDto.ImageUpload, post.ImageFileName);
+            }
+
             //Add the new post to the database
             _context.Add(post);
             await _context.SaveChangesAsync();
@@ -177,7 +187,9 @@ namespace PostSnap.Controllers
             {
                 Id = post.Id,
                 Title = post.Title,
-                Body = post.Body
+                Body = post.Body,
+                ImageFileName = post.ImageFileName
+                
             };
 
             return View(dto);
@@ -196,12 +208,13 @@ namespace PostSnap.Controllers
                 return BadRequest();
             }
 
+
           if(!ModelState.IsValid)
             {
                 return View(postDto);
             }
 
-            var post = await _context.Posts.FindAsync(id);
+            var post = await _context.Posts.FindAsync(id);//Find the post by id
             if(post == null || post.IsDeleted)
             {
                 return NotFound();
@@ -212,7 +225,14 @@ namespace PostSnap.Controllers
             {
                 return Forbid(); //Only owner can edit
             }
-            
+
+            //Image Upload 
+
+            if (postDto.ImageUpload != null && postDto.ImageUpload.Length > 0)
+            {
+                post.ImageFileName = await SaveImageAsync(postDto.ImageUpload, post.ImageFileName);
+            }
+
             //Update allowed fields
             post.Title = postDto.Title;
             post.Body = postDto.Body;
@@ -220,7 +240,6 @@ namespace PostSnap.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
-        
         }
 
         // POST: Posts/Delete/5
@@ -253,6 +272,36 @@ namespace PostSnap.Controllers
         {
             return _context.Posts.Any(e => e.Id == id);
         }
+
+
+        //Image Upload Or Replace Method
+        private async Task<string> SaveImageAsync(IFormFile imageUpload, string? existingFileName = null)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+            Directory.CreateDirectory(uploadsFolder);//Ensure directory exists by creating it if not
+
+            //Check if there is an image already so that we can delete it
+            if (!string.IsNullOrEmpty(existingFileName))
+            {
+                var existingFilePath = Path.Combine(uploadsFolder, existingFileName);
+                if (System.IO.File.Exists(existingFilePath))
+                    System.IO.File.Delete(existingFilePath);
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageUpload.FileName);//GUID to prevent filename collisions &  preserve the file extension (.jpg, .png, etc.)
+
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);//We create the full file path where the image will be stored
+
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageUpload.CopyToAsync(stream);        //This creates a new file (or overwrites if it somehow exists)
+            }                                                 //It’s wrapped in a using block to auto-dispose the stream and avoid memory leaks
+
+            return uniqueFileName;
+        }
+
+
     }
 }
 
