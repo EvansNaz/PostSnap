@@ -9,14 +9,14 @@ namespace PostSnap.Data
     {
         public static async Task SeedUserAndPosts(
             ApplicationDbContext context, 
-            UserManager<IdentityUser> userManager)
+            UserManager<ApplicationUser> userManager)
         {
             //Skip seeding if users already exist
             if(await context.Users.AnyAsync())
                 return;
 
             //Create 5 fake users
-            var userFaker = new Faker<IdentityUser>()
+            var userFaker = new Faker<ApplicationUser>()
                 .RuleFor(u => u.UserName, f => f.Internet.UserName())
                 .RuleFor(u => u.Email, f => f.Internet.Email());
 
