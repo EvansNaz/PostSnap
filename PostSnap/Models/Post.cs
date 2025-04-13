@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using PostSnap.Data;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,7 +8,7 @@ namespace PostSnap.Models
     public class Post
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]//Auto increment
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]// Auto-incremented by DB
         public int Id { get; set; }
 
         [Required]
@@ -27,18 +28,22 @@ namespace PostSnap.Models
 
         public bool IsDeleted { get; set; } = false;
 
-        //Foreign key linking to Identity User
+        //Foreign key linking to  User
         [Required]
         public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public virtual IdentityUser User { get; set; }//lazy loading
+        public virtual ApplicationUser User { get; set; }//lazy loading
+
+        // Comments collection
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 
     public enum PostStatus
     {
         Draft,
         Published,
-        Deleted
+        Locked,
+        Deleted,
     }
 }
