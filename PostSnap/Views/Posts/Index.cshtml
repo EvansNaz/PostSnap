@@ -44,6 +44,10 @@
 <p class="text-center mt-4">
     <a asp-action="Create" class="btn btn-success">Create New Post</a>
 </p>
+
+<!-- Pagination Controls -->
+@await Html.PartialAsync("_Pagination", Model)
+
 <div class="container text-center ">
     <div class="row justify-content-center">
         @foreach (var post in Model)

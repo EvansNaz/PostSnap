@@ -80,7 +80,12 @@ Unit Tests / Validation � add tests or deeper validation logic.
 
 File Uploads � attach images to posts?
 
+!!!! user can't delete his own posts or comments just his account but his things he posted stay with no owner
+
 users:
 hont@gmail.com
 jkA12!sa
+
+john@gmail.com
+
  */

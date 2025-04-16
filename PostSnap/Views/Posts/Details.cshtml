@@ -1,8 +1,10 @@
-﻿@model PostSnap.Models.Post
+﻿@model PostSnap.Models.ViewModels.PostDetailsViewModel
 @using System.Security.Claims
+@using System.Text.Json
+
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Post.Title;
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get logged-in user's ID
 
 }
@@ -12,31 +14,117 @@
         <div class="col-md-8">
             <div class="card shadow-lg rounded">
                 <div class="card-body">
-                    <h1 class="card-title">@Model.Title</h1>
+                    <h1 class="card-title">@Model.Post.Title</h1>
                     <p class="text-muted">
-                        By <strong>@(Model.User?.UserName ?? "Unknown")</strong>
-                        on @Model.CreatedAt.ToString("MMMM dd, yyyy")
+                        By <strong>@(Model.Post.User?.UserName ?? "Unknown")</strong>
+                        on @Model.Post.CreatedAt.ToString("MMMM dd, yyyy")
                     </p>
-                    @if (!string.IsNullOrEmpty(@Model.ImageFileName) && System.IO.File.Exists($"wwwroot\\uploads\\{Model.ImageFileName}"))
+                    @if (!string.IsNullOrEmpty(@Model.Post.ImageFileName) && System.IO.File.Exists($"wwwroot\\uploads\\{Model.Post.ImageFileName}"))
                     {
                         <div class="image-container">
-                            <a href="/uploads/@Model.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Title">
+                            <a href="/uploads/@Model.Post.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Post.Title">
 
-                                <img src="/uploads/@Model.ImageFileName" class="card-img-custom" alt="Post image" />
+                                <img src="/uploads/@Model.Post.ImageFileName" class="card-img-custom" alt="Post image" />
                             </a>
                         </div>
 
                     }
                     <hr />
-                    <p class="card-text">@Model.Body</p>
+                    <p class="card-text">@Model.Post.Body</p>
                 </div>
             </div>
+
+            <hr />
+            <h4>Comments</h4>
+
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                <p>(@Model.Comments.TotalItemCount)</p> //Shows total across all pages (IPagedList uses TotalItemCount)
+                foreach (var comment in Model.Comments)
+                {
+                    var isOwner = comment.UserId == userId;
+                    var editFormId = $"edit-form-{comment.Id}";
+                    var contentDisplayId = $"comment-content-{comment.Id}";
+                    var editBtnId = $"edit-btn-{comment.Id}";
+
+                    <div class="border p-2 mb-2 rounded bg-light">
+                        <!-- Comment Content Display -->
+                        <div id="@contentDisplayId">
+                            <p class="mb-1">@comment.Content</p>
+                            <small class="text-muted">
+                                By <strong>@(comment.User?.UserName ?? "Unknown")</strong>
+                                on @comment.CreatedAt.ToString("MMM dd yyyy, h:mm tt")
+                                @if (comment.LastModifiedAt.HasValue)
+                                {
+                                    <span class="ms-1 text-muted" title="Edited at @comment.LastModifiedAt.Value.ToString("MMM dd yyyy, h:mm tt")">
+                                        (edited)
+                                    </span>
+                                }
+                            </small>
+
+
+                        </div>
+
+                        <!-- Edit Button (For owner)-->
+                        @if (isOwner)
+                        {
+                            <button id="edit-btn-@comment.Id" class="btn btn-sm btn-outline-primary mt-1" onclick="toggleEditForm('@comment.Id')">Edit</button>
+                        }
+
+                        <!-- Hidden Edit Form-->
+                        @if (isOwner)
+                        {
+                            <form id="@editFormId" class="mt-2 d-none" method="post" asp-controller="Comments" asp-action="Edit">
+                                <input type="hidden" name="PostId" value="@Model.Post.Id" />
+                                <input type="hidden" name="CommentId" value="@comment.Id" />
+
+            <textarea id="edit-textarea-@comment.Id"
+                      name="Content"
+                      class="form-control mb-2"
+                      required
+                      data-original-content="@comment.Content"
+                      oninput="checkIfChanged('@comment.Id')">@comment.Content</textarea>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-sm btn-success" disabled>Save</button>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="toggleEditForm('@comment.Id')">Cancel</button>
+
+                                </div>
+                            </form>
+                        }
+                    </div>
+                }
+                //Pagination
+                @await Html.PartialAsync("_Pagination", Model.Comments)
+
+            }
+            else
+            {
+                <p class="text-muted">No comments yet.</p>
+            }
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <form asp-controller="Comments" asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label for="commentContent" class="form-label">Add a comment:</label>
+                        <textarea name="Content" class="form-control" required maxlength="500"></textarea>
+                        <input type="hidden" name="PostId" value="@Model.Post.Id" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Comment</button>
+                </form>
+            }
+            else
+            {
+                <p><a asp-controller="Account" asp-action="Login">Log in</a> to add a comment.</p>
+            }
+
+
             <div class="container mt-3">
                 <div class="d-flex justify-content-between">
                     <a asp-action="Index" class="btn btn-secondary ">Back to Posts</a>
-                    @if (Model.UserId == userId)
+                    @if (Model.Post.UserId == userId)
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning ms-auto">Edit</a>
+                        <a asp-action="Edit" asp-route-id="@Model.Post.Id" class="btn btn-warning ms-auto">Edit</a>
                     }
                 </div>
             </div>
@@ -45,3 +133,44 @@
         </div>
     </div>
 </div>
+@section Scripts {
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function toggleEditForm(commentId) {
+            const form = $(`#edit-form-${commentId}`);
+            const content = $(`#comment-content-${commentId}`);
+            const editBtn = $(`#edit-btn-${commentId}`);
+            const textarea = $(`#edit-textarea-${commentId}`); // Get the textarea
+
+            // Check if the form is currently hidden
+            if (form.hasClass("d-none")) {
+                // If hidden, show the form, hide the comment content, and hide the Edit button
+                form.removeClass("d-none");
+                content.hide();
+                editBtn.hide();
+
+                // Focus the textarea for editing
+                textarea.focus();
+            } else {
+                // If visible, hide the form, show the comment content, and show the Edit button
+                form.addClass("d-none");
+                content.show();
+                editBtn.show();
+            }
+        }
+
+
+        function checkIfChanged(commentId) {
+            const textarea = $(`#edit-textarea-${commentId}`);
+            const originalContent = textarea.data("original-content");
+            const currentContent = textarea.val();
+            const saveBtn = textarea.closest("form").find("button[type='submit']");
+
+            // Compare and enable/disable
+            saveBtn.prop("disabled", currentContent === originalContent);
+        }
+    </script>
+}

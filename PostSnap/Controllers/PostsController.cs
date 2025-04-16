@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using PostSnap.Data;
 using PostSnap.Dtos;
 using PostSnap.Models;
-using X.PagedList;
+using PostSnap.Models.ViewModels;
+using X.PagedList.EntityFramework;
 using X.PagedList.Extensions;
-using X.PagedList.Mvc.Core;
+using X.PagedList;
+
 
 namespace PostSnap.Controllers
 {
@@ -40,7 +37,8 @@ namespace PostSnap.Controllers
                 // Fetch posts that aren't soft-deleted
                 IQueryable<Post> postsQuery = _context.Posts
                     .Where(p => !p.IsDeleted)
-                    .Include(p => p.User);
+                    .Include(p => p.User)
+                    .Include(c => c.Comments);
 
                 // Apply search filter
                 if (!string.IsNullOrEmpty(searchTerm))
@@ -76,33 +74,44 @@ namespace PostSnap.Controllers
 
         // GET: Posts/Details/5
         [Authorize]
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Details(int? id, int? page)
         {
             if (id == null)
             {
                 return NotFound(); // Handle when ID is null
             }
 
-            try
-            {
-                // Retrieve the post with related User info
-                var post = await _context.Posts
-                    .Include(p => p.User) // Load associated User info
-                    .FirstOrDefaultAsync(m => m.Id == id); // Get post by ID
 
-                if (post == null)
-                {
-                    return NotFound(); // Handle when post is not found
-                }
+            //Fetch post if not Deleted
+            var post =  _context.Posts
+                .Include(p => p.User)
+                .FirstOrDefault(m => m.Id == id && !m.IsDeleted);
 
-                return View(post); // Pass the post to the view
-            }
-            catch (Exception ex)
+            if (post == null) return NotFound();
+
+            int pageSize = 5;//how many comments to show per page
+            int pageNumber = page ?? 1;//if no page is provided, show page 1
+
+            var commentsQuery = _context.Comments
+                .Where(c => c.PostId == id && !c.IsDeleted)
+                .OrderByDescending(c => c.CreatedAt)   //Newest first
+                .Include(c => c.User);
+
+            //executes the query and paginates it
+            var pagedComments =  commentsQuery.ToPagedList(pageNumber, pageSize);
+
+            //We use the model to pass both post and its comments to the view
+            var viewModel = new PostDetailsViewModel
             {
-                // Log the error (you can log it to a file, database, etc.)
-                Console.WriteLine($"Error: {ex.Message}");
-                return View("Error"); // Return a generic error view if something goes wrong
-            }
+                Post = post,
+                Comments = pagedComments
+            };
+
+            //We pass the id as ViewData so the pagination link includes the id for comment pagination in the details view of a post
+            ViewData["PostId"] = id;
+
+            return View(viewModel);
+ 
         }
 
         // GET: Posts/Create
@@ -238,8 +247,9 @@ namespace PostSnap.Controllers
             post.Body = postDto.Body;
             post.LastModifiedAt = DateTime.Now;
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Good Edit";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", new { postDto.Id });
         }
 
         // POST: Posts/Delete/5
@@ -262,6 +272,8 @@ namespace PostSnap.Controllers
             
             post.IsDeleted = true;
             post.LastModifiedAt = DateTime.Now;
+            TempData["Success"] = "Post deleted successfully!";
+
 
             await _context.SaveChangesAsync();
 
