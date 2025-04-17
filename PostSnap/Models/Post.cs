@@ -28,12 +28,11 @@ namespace PostSnap.Models
 
         public bool IsDeleted { get; set; } = false;
 
-        //Foreign key linking to  User
-        [Required]
-        public string UserId { get; set; }
+        //Foreign key linking to  User(nullable)
+        public string? UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public virtual ApplicationUser User { get; set; }//lazy loading
+        public virtual ApplicationUser? User { get; set; }//lazy loading
 
         // Comments collection
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();

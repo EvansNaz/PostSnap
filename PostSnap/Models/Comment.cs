@@ -27,11 +27,10 @@ namespace PostSnap.Models
         [ForeignKey("PostId")]
         public Post Post { get; set; }
 
-        //Foreign key to the User who wrote it
-        [Required]
-        public string UserId { get; set; }
+        //Foreign key to the User who wrote it (nullable)
+        public string? UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser? User { get; set; }
     }
 }

@@ -32,7 +32,7 @@ namespace PostSnap.Data
                 .HasOne(p => p.User)
                 .WithMany(u => u.Posts)
                 .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.Restrict);// Avoid cascade conflicts
+                .OnDelete(DeleteBehavior.SetNull);//iKeep posts if user is deleted
 
             //1 Post has many comments, each comment belongs to 1 post
             modelBuilder.Entity<Comment>()
@@ -46,7 +46,7 @@ namespace PostSnap.Data
                 .HasOne(c => c.User)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Keep comments if user is deleted
+                .OnDelete(DeleteBehavior.SetNull); // Keep comments if user is deleted
         }
 
 
