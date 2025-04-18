@@ -53,8 +53,11 @@ body {
 }
 
 .image-container {
+    max-block-size:500px;
+    min-block-size:100px;
     width: 100%;
-    /*    aspect-ratio: 16 / 9*/
+
+    aspect-ratio:auto;
     overflow: hidden;
     border-radius: 0.5rem;
     margin-bottom: 1rem; 
@@ -67,7 +70,7 @@ body {
     .image-container img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit:fill;
         transition: transform 0.3s ease;
         border-radius: 0.5rem;
     }
@@ -75,5 +78,7 @@ body {
     .image-container img:hover {
         transform: scale(1.02);
     }
+
+
 
 

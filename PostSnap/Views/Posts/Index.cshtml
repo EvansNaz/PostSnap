@@ -34,6 +34,7 @@
                 <option value="" selected="@(currentSort == "" ? "selected" : null)">Newest</option>
                 <option value="oldest" selected="@(currentSort == "oldest" ? "selected" : null)">Oldest</option>
                 <option value="title_asc" selected="@(currentSort == "title_asc" ? "selected" : null)">Title A-Z</option>
+                <option value="comment_count" selected="@(currentSort == "comment_count" ? "selected" : null)">Most Commented</option>
             }
         </select>
     </form>
@@ -64,7 +65,7 @@
                             <div class="image-container">
                                 <a href="/uploads/@post.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@post.Title">
 
-                                    <img src="/uploads/@post.ImageFileName" class="card-img-custom" alt="Post image" />
+                                    <img src="/uploads/@post.ImageFileName" class="img-fluid rounded" alt="Post image" />
                                 </a>
                             </div>
                             <hr />

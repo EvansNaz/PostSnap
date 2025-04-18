@@ -35,7 +35,7 @@
             </div>
 
             <hr />
-            <h4>Comments</h4>
+            <h4 id="comments">Comments</h4>
 
             @if (Model.Comments != null && Model.Comments.Any())
             {
@@ -173,4 +173,5 @@
             saveBtn.prop("disabled", currentContent === originalContent);
         }
     </script>
+
 }

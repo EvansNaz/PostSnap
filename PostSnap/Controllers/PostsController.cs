@@ -53,6 +53,7 @@ namespace PostSnap.Controllers
                 {
                     "oldest" => postsQuery.OrderBy(p => p.CreatedAt),
                     "title_asc" => postsQuery.OrderBy(p => p.Title),
+                    "comment_count" => postsQuery.OrderByDescending(p => p.Comments.Count),
                     _ => postsQuery.OrderByDescending(p => p.CreatedAt),
                 };
 
