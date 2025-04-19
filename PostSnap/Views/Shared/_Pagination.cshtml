@@ -5,7 +5,8 @@
     var searchTerm = ViewData["CurrentFilter"];
     var sortOrder = ViewData["CurrentSort"];
     var postid = ViewData["PostId"];
-    var isCommentPagination = postid != null;
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+    var isCommentPagination = actionName == "Details";
 }
 
 <div class="d-flex justify-content-center mt-4">
@@ -24,8 +25,6 @@
         PageClasses = new[] { "page-link" },
         DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
         DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
-        DisplayLinkToNextPage = PagedListDisplayMode.Never,
         DisplayLinkToIndividualPages = true,
         MaximumPageNumbersToDisplay = 5,
         EllipsesFormat = "...",
@@ -35,8 +34,8 @@
     }
     else
     {
-        // We're in the Index view, paginating posts
-        @Html.PagedListPager(Model, page => Url.Action("Index", new
+        // We're in Index or MyPosts — include the correct action name dynamically
+        @Html.PagedListPager(Model, page => Url.Action(actionName, new
             {
                 page,
                 searchTerm,
@@ -49,19 +48,13 @@
         PageClasses = new[] { "page-link" },
         DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
         DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-
         DisplayLinkToNextPage = PagedListDisplayMode.Never,
         DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
-
-        DisplayEllipsesWhenNotShowingAllPageNumbers = false,
-
         DisplayLinkToIndividualPages = true,
         MaximumPageNumbersToDisplay = 5,
-
         EllipsesFormat = "...",
         LinkToFirstPageFormat = "<strong style='color:black;'>{0}</strong>",
-        LinkToLastPageFormat = "<strong style='color:black;'>{0}</strong>",
-        // LinkToIndividualPageFormat = "<strong class='container '>{0}</strong>"
+        LinkToLastPageFormat = "<strong style='color:black;'>{0}</strong>"
     })
     }
 </div>

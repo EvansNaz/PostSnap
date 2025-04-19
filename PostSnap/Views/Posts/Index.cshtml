@@ -7,7 +7,9 @@
     ViewData["Title"] = "PostSnap";
 }
 
-<h1 class="text-center my-4">PostSnap</h1>
+<h1 class="text-center my-4">
+    @(ViewData["IsMyPosts"] != null ? "📝 Your Posts" : "🌍 All Posts")
+</h1>
 
 
 
@@ -53,6 +55,14 @@
     <div class="row justify-content-center">
         @foreach (var post in Model)
         {
+            @if (!Model.Any())
+            {
+                <p class="text-center text-muted mt-4">
+                    @(ViewData["IsMyPosts"] != null
+                        ? "You haven't posted anything yet."
+                        : "No posts found.")
+                </p>
+            }
             <div class="col-md-8 mb-4">
                 <div class="card shadow-lg rounded">
                     <div class="card-body">

@@ -26,7 +26,7 @@ namespace PostSnap.Controllers
 
 
 
-        // GET: Posts
+        // GET: Posts Index
         public IActionResult Index(string searchTerm, string sortOrder, int? page)
         {
             try
@@ -34,28 +34,8 @@ namespace PostSnap.Controllers
                 int pageSize = 5;
                 int pageNumber = page ?? 1;
 
-                // Fetch posts that aren't soft-deleted
-                IQueryable<Post> postsQuery = _context.Posts
-                    .Where(p => !p.IsDeleted)
-                    .Include(p => p.User)
-                    .Include(c => c.Comments);
+                var postsQuery = GetFilteredPosts(searchTerm, sortOrder);
 
-                // Apply search filter
-                if (!string.IsNullOrEmpty(searchTerm))
-                {
-                    postsQuery = postsQuery.Where(p =>
-                        p.Title.Contains(searchTerm) ||
-                        p.Body.Contains(searchTerm));
-                }
-
-                // Apply sorting
-                postsQuery = sortOrder switch
-                {
-                    "oldest" => postsQuery.OrderBy(p => p.CreatedAt),
-                    "title_asc" => postsQuery.OrderBy(p => p.Title),
-                    "comment_count" => postsQuery.OrderByDescending(p => p.Comments.Count),
-                    _ => postsQuery.OrderByDescending(p => p.CreatedAt),
-                };
 
                 // Paginate results
                 var posts = postsQuery.ToPagedList(pageNumber, pageSize);
@@ -72,6 +52,32 @@ namespace PostSnap.Controllers
             }
         }
 
+        //GET: Posts My Posts(user's post only)
+
+        [Authorize]
+        public IActionResult MyPosts(string searchTerm, string sortOrder, int? page)
+        {
+            try
+            {
+                int pageSize = 5;
+                int pageNumber = page ?? 1;
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var postsQuery = GetFilteredPosts(searchTerm, sortOrder, userId);
+
+                var posts = postsQuery.ToPagedList(pageNumber, pageSize);
+
+                ViewData["CurrentSort"] = sortOrder;
+                ViewData["CurrentFilter"] = searchTerm;
+                ViewData["IsMyPosts"] = true;
+
+                return View("Index", posts); //Reuse Index View if layout is the same
+            }
+            catch
+            {
+                return View("Error");
+            }
+        }
 
         // GET: Posts/Details/5
         [Authorize]
@@ -314,6 +320,46 @@ namespace PostSnap.Controllers
             return uniqueFileName;
         }
 
+        
+        /*
+            Returns a query for posts, filtered optionally by search term, sort order and user ID
+            Used for both the main post index feed and the My Posts page.
+         */
+        private IQueryable<Post> GetFilteredPosts (string searchTerm, string sortOrder, string? userId = null)
+        {
+            //Get posts that are not soft-deleted
+            //& include related User and Comments data for each post
+            // Build base query with includes and cast to avoid type mismatch issues with Where
+            var postsQuery =(IQueryable<Post>) _context.Posts
+                .Where(p => !p.IsDeleted)
+                .Include(p => p.User)
+                .Include(p => p.Comments);
+
+            // Filter by user ID (only when showing 'MyPosts')
+            if (!string.IsNullOrEmpty(userId))
+            {
+                postsQuery = postsQuery.Where(p => p.UserId == userId);
+                // Posts where p.UserId is null will be excluded here
+
+            }
+            // If a search term is provided, filter to posts whose title or body contains it
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                postsQuery = postsQuery
+                    .Where(p => p.Title.Contains(searchTerm) || p.Body.Contains(searchTerm));
+            }
+            // Apply sort order
+            postsQuery = sortOrder switch
+            {
+                "oldest" => postsQuery.OrderBy(p => p.CreatedAt),                  // Oldest first
+                "title_asc" => postsQuery.OrderBy(p => p.Title),                   // Alphabetical by title
+                "comment_count" => postsQuery.OrderByDescending(p => p.Comments.Count), // Most comments first
+                _ => postsQuery.OrderByDescending(p => p.CreatedAt),              // Default: newest first
+            };
+
+            // Return the composed query to be used with pagination later
+            return postsQuery;
+        }
 
     }
 }
