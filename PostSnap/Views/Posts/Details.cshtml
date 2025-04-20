@@ -19,7 +19,7 @@
                         By <strong>@(Model.Post.User?.UserName ?? "Unknown")</strong>
                         on @Model.Post.CreatedAt.ToString("MMMM dd, yyyy")
                     </p>
-                    @if (!string.IsNullOrEmpty(@Model.Post.ImageFileName) && System.IO.File.Exists($"wwwroot\\uploads\\{Model.Post.ImageFileName}"))
+                    @if (!string.IsNullOrEmpty(@Model.Post.ImageFileName))
                     {
                         <div class="image-container">
                             <a href="/uploads/@Model.Post.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Post.Title">
@@ -135,7 +135,7 @@
 </div>
 @section Scripts {
 
-
+    <!-- Comment Edit-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
