@@ -36,7 +36,14 @@
                 <!-- Image Upload Field -->
                 <div class="form-group">
                     <label asp-for="ImageUpload" class="control-label font-weight-bold">Upload Image</label>
-                    <input asp-for="ImageUpload" type="file" class="form-control-file" />
+                    <input asp-for="ImageUpload" type="file" class="form-control-file" id="imageUploadInput" accept="image/*" onchange="previewImage(event)" />
+                    <!-- Preview Image -->
+                    <div class="form-group text-center mt-3">
+                        <span id="imageError" class="text-danger d-block mt-2"></span>
+
+                        <img id="imagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none" style="max-height: 300px;" />
+                    </div>
+
                     <span asp-validation-for="ImageUpload" class="text-danger"></span>
                 </div>
                 <br />

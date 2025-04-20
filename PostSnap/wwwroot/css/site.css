@@ -67,18 +67,39 @@ body {
 }
 
 
-    .image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit:fill;
-        transition: transform 0.3s ease;
-        border-radius: 0.5rem;
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit:fill;
+    transition: transform 0.3s ease;
+    border-radius: 0.5rem;
+}
+
+.image-container img:hover {
+    transform: scale(1.02);
+}
+
+    
+/*
+    Upload requirements failed
+*/
+@keyframes flashError {
+    0% {
+        opacity: 1;
     }
 
-    .image-container img:hover {
-        transform: scale(1.02);
+    50% {
+        opacity: 0.2;
     }
 
+    100% {
+        opacity: 1;
+    }
+}
+
+.flash-error {
+    animation: flashError 0.5s ease;
+}
 
 
 

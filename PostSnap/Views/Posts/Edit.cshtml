@@ -34,26 +34,33 @@
         <span asp-validation-for="Body" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
+    <!-- Current Image-->
+    <div class="form-group" id="currentImage">
         <label asp-for="ImageUpload" class="control-label font-weight-bold">Current Image</label>
         @if (!string.IsNullOrEmpty(@Model.ImageFileName))
         {
             <div class="image-container">
                 <a href="/uploads/@Model.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Title">
 
-                    <img src="/uploads/@Model.ImageFileName" class="card-img-custom" alt="Post image" />
+                    <img src="/uploads/@Model.ImageFileName" class="card-img-custom mb-3" alt="Current Post Image" id="currentImage" />
                 </a>
             </div>
         }
     </div>
-    <!-- Image Upload Field -->
 
         <hr />
         <br />
+    <!-- Image Upload Field -->
     <div class="form-group">
-        <label asp-for="ImageUpload" class="control-label font-weight-bold">Replace Image</label>
-        <br />
-        <input asp-for="ImageUpload" type="file" class="form-control-file" />
+        <label asp-for="ImageUpload" class="control-label font-weight-bold">Upload Image</label>
+        <input asp-for="ImageUpload" type="file" class="form-control-file" id="imageUploadInput" accept="image/*" onchange="previewImage(event)" />
+        <!-- Preview Image -->
+        <div class="form-group text-center mt-3">
+            <span id="imageError" class="text-danger d-block mt-2"></span>
+
+            <img id="imagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none" style="max-height: 300px;" />
+        </div>
+
         <span asp-validation-for="ImageUpload" class="text-danger"></span>
     </div>
     <br />
