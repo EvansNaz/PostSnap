@@ -14,6 +14,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
@@ -21,7 +22,7 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // --------------------------------------------
-// SEED FAKE USERS AND POSTS (Only runs once)
+// SEED FAKE USERS AND POSTS  and Admin (Only runs once)
 // --------------------------------------------
 using (var scope = app.Services.CreateScope())
 {
@@ -30,9 +31,17 @@ using (var scope = app.Services.CreateScope())
     // Access required services from the container
     var context = services.GetRequiredService<ApplicationDbContext>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    //Create roles (admin, user)
+    await RoleSeeder.SeedRoles(roleManager);
 
     // Call the method that seeds 5 users, each with 6 posts
-    await DataSeeder.SeedUserAndPosts(context, userManager);
+    await UserSeeder.SeedUserAndPosts(context, userManager);
+    
+    //Create Admin
+    await AdminSeeder.SeedAdmin(userManager, roleManager);
+
 }
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -63,29 +72,3 @@ app.MapRazorPages()
 
 app.Run();
 
-/*
- Pagination � break the post listing into pages so it�s not overwhelming. (DONE!!!!!!!!!)
-
-Search & Filter � add the ability to search posts by title, body, or user.(DONE!!!!!!!!!)
-
-Sorting � allow sorting by date, title, or status.
-
-Authorization Checks � make sure users can only edit/delete their posts.
-
-Improve the UI � make the views cleaner (maybe use cards, bootstrap, etc.).
-
-Comments or Likes � add extra features to your post model.
-
-Unit Tests / Validation � add tests or deeper validation logic.
-
-File Uploads � attach images to posts?
-
-!!!! user can't delete his own posts or comments just his account but his things he posted stay with no owner
-
-users:
-hont@gmail.com
-jkA12!sa
-
-john@gmail.com
-
- */
