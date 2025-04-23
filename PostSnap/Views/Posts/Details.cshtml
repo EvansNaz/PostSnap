@@ -3,6 +3,7 @@
 @using System.Text.Json
 
 
+
 @{
     ViewData["Title"] = Model.Post.Title;
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get logged-in user's ID
@@ -33,7 +34,15 @@
                     <p class="card-text">@Model.Post.Body</p>
                 </div>
             </div>
-
+            <div class="container mt-3">
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary ">Back to Posts</a>
+                    @if (Model.Post.UserId == userId)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Post.Id" class="btn btn-warning ms-auto">Edit</a>
+                    }
+                </div>
+            </div>
             <hr />
             <h4 id="comments">Comments</h4>
 
@@ -42,7 +51,9 @@
                 <p>(@Model.Comments.TotalItemCount)</p> //Shows total across all pages (IPagedList uses TotalItemCount)
                 foreach (var comment in Model.Comments)
                 {
-                    var isOwner = comment.UserId == userId;
+                    var canEdit = CommentPermissions.CanEdit(comment, User);
+                    var canSoftDelete = CommentPermissions.CanSoftDelete(comment, User);
+                    var canHardDelete = CommentPermissions.CanHardDelete(comment, User);
                     var editFormId = $"edit-form-{comment.Id}";
                     var contentDisplayId = $"comment-content-{comment.Id}";
                     var editBtnId = $"edit-btn-{comment.Id}";
@@ -66,13 +77,45 @@
                         </div>
 
                         <!-- Edit Button (For owner)-->
-                        @if (isOwner)
+                        @if (canEdit)
                         {
                             <button id="edit-btn-@comment.Id" class="btn btn-sm btn-outline-primary mt-1" onclick="toggleEditForm('@comment.Id')">Edit</button>
                         }
+                        @if (canHardDelete)
+                        {
+                            <!-- Hard Delete Icon Button (Admin only) -->
+                            <div class="dropdown d-inline ms-2 float-end">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle  mt-1"
+                                        type="button"
+                                        id="adminDropdown-@comment.Id"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <i class="bi bi-shield-lock-fill"></i> Admin
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="adminDropdown-@comment.Id">
+                                    <li>
+                                        <button class="dropdown-item text-danger"
+                                                onclick="submitHardDelete(@comment.Id)">
+                                            🗑️ Hard Delete
+                                        </button>
+                                    </li>
+                                    <!-- Add more admin options here -->
+                                </ul>
+                            </div>
+
+
+                            <form id="hard-delete-form-@comment.Id"
+                                  method="post"
+                                  asp-controller="Comments"
+                                  asp-action="HardDelete"
+                                  asp-route-id="@comment.Id"
+                                  style="display:none;">
+                                @Html.AntiForgeryToken()
+                            </form>
+                        }
 
                         <!-- Hidden Edit Form-->
-                        @if (isOwner)
+                        @if (canEdit)
                         {
                             <form id="@editFormId" class="mt-2 d-none" method="post" asp-controller="Comments" asp-action="Edit">
                                 <input type="hidden" name="PostId" value="@Model.Post.Id" />
@@ -134,15 +177,7 @@
             }
 
 
-            <div class="container mt-3">
-                <div class="d-flex justify-content-between">
-                    <a asp-action="Index" class="btn btn-secondary ">Back to Posts</a>
-                    @if (Model.Post.UserId == userId)
-                    {
-                        <a asp-action="Edit" asp-route-id="@Model.Post.Id" class="btn btn-warning ms-auto">Edit</a>
-                    }
-                </div>
-            </div>
+
 
 
         </div>
@@ -159,14 +194,15 @@
             const content = $(`#comment-content-${commentId}`);
             const editBtn = $(`#edit-btn-${commentId}`);
             const textarea = $(`#edit-textarea-${commentId}`); // Get the textarea
+            const originalContent = textarea.data("original-content");
+
 
             // Check if the form is currently hidden
             if (form.hasClass("d-none")) {
-                // If hidden, show the form, hide the comment content, and hide the Edit button
+                // If hidden, (show the form), hide the comment content, and hide the Edit button
                 form.removeClass("d-none");
                 content.hide();
                 editBtn.hide();
-
                 // Focus the textarea for editing
                 textarea.focus();
             } else {
@@ -174,10 +210,14 @@
                 form.addClass("d-none");
                 content.show();
                 editBtn.show();
+                // Reset textarea to original content on cancel
+                textarea.val(originalContent);
+                checkIfChanged(commentId);
+
             }
         }
 
-
+        //Check content to enable or disable the Save button
         function checkIfChanged(commentId) {
             const textarea = $(`#edit-textarea-${commentId}`);
             const originalContent = textarea.data("original-content");
@@ -194,6 +234,13 @@
                 $(`#delete-form-${commentId}`).submit();
             }
         }
+
+                function submitHardDelete(commentId) {
+            if (confirm('Are you sure you want to permanently delete this comment?')) {
+                $(`#hard-delete-form-${commentId}`).submit();
+            }
+        }
+
 
     </script>
 

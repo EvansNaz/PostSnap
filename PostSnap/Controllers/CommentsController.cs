@@ -116,6 +116,20 @@ namespace PostSnap.Controllers
             return RedirectToAction("Details", "Posts", new { id = comment.Id });
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpPost] [ValidateAntiForgeryToken]
+        [ActionName("HardDelete")]
+        public async Task<IActionResult> HardDelete(int id)
+        {
+            var comment = await _context.Comments.FindAsync(id);
 
+            if(comment == null) return NotFound();
+
+            _context.Comments.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Comment permanantly deleted";
+            return RedirectToAction("Details", "Posts", new { id = comment.Id});
+        }
     }
 }
