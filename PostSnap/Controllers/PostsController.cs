@@ -154,8 +154,8 @@ namespace PostSnap.Controllers
             //Map the Dto to the actual Post model
             var post = new Post
             {
-                Title = postDto.Title,
-                Body = postDto.Body,
+                Title = postDto.Title.Trim(),
+                Body = postDto.Body.Trim(),
                 UserId = userId, //Securely set in the controller
                 CreatedAt = DateTime.Now,
                 LastModifiedAt = DateTime.Now,
@@ -250,11 +250,11 @@ namespace PostSnap.Controllers
             }
 
             //Update allowed fields
-            post.Title = postDto.Title;
-            post.Body = postDto.Body;
+            post.Title = postDto.Title.Trim();
+            post.Body = postDto.Body.Trim();
             post.LastModifiedAt = DateTime.Now;
             await _context.SaveChangesAsync();
-            TempData["Success"] = "Good Edit";
+            TempData["Success"] = "Edit successful";
 
             return RedirectToAction("Details", new { postDto.Id });
         }

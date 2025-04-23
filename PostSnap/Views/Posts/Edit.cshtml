@@ -7,13 +7,13 @@
 <div >
     <div class="d-flex justify-content-between">
 
-    <h1>Edit Post</h1>
-    <!--Delete Form-->
-    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm ('This Post will be deleted!')">
-        @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-outline-danger ms-auto">Delete Post</button>
-    </form>
-</div>
+        <h1>Edit Post</h1>
+        <!--Delete Form-->
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm ('This Post will be deleted!')">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger ms-auto">Delete Post</button>
+        </form>
+    </div>
 </div>
 
 <form asp-action="Edit" method="post" enctype="multipart/form-data">
@@ -23,32 +23,35 @@
     <!-- Title Field -->
     <div class="form-group">
         <label asp-for="Title"></label>
-        <input asp-for="Title" class="form-control" />
+        <input asp-for="Title" class="form-control" data-original-title="@Model.Title"/>
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
     <!-- Body Field -->
     <div class="form-group">
         <label asp-for="Body"></label>
-        <textarea asp-for="Body" class="form-control" rows="5"></textarea>
+        <textarea asp-for="Body" class="form-control" rows="5" data-original-body="@Model.Body" ></textarea>
         <span asp-validation-for="Body" class="text-danger"></span>
     </div>
+    <hr />
 
     <!-- Current Image-->
-    <div class="form-group" id="currentImage">
-        <label asp-for="ImageUpload" class="control-label font-weight-bold">Current Image</label>
-        @if (!string.IsNullOrEmpty(@Model.ImageFileName))
-        {
+    @if (!string.IsNullOrEmpty(@Model.ImageFileName))
+    {
+
+        <div class="form-group" id="currentImage">
+            <label asp-for="ImageUpload" class="control-label font-weight-bold">Current Image</label>
+
             <div class="image-container">
                 <a href="/uploads/@Model.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Title">
 
                     <img src="/uploads/@Model.ImageFileName" class="card-img-custom mb-3" alt="Current Post Image" id="currentImage" />
                 </a>
             </div>
-        }
+        
     </div>
+    }
 
-        <hr />
         <br />
     <!-- Image Upload Field -->
     <div class="form-group">
@@ -66,7 +69,7 @@
     <br />
     
     <div class="m-1">
-        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button type="submit" class="btn btn-primary" id="saveChangesBtn" disabled>Save Changes</button>
         <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
 
     </div>
@@ -77,4 +80,36 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const saveBtn = document.querySelector("#saveChangesBtn");
+
+            const titleInput = document.querySelector("input[name='Title']");
+            const originalTitle = titleInput.value.trim();
+
+            const bodyInput = document.querySelector("textarea[name='Body']");
+            const imageInput = document.querySelector("input[type='file'][name='ImageUpload']");
+            const originalBody = bodyInput.value.trim();
+
+        function checkIfChanged() {
+            const currentTitle = titleInput.value.trim();
+            const currentBody = bodyInput.value.trim();
+            const imageChanged = imageInput.files.length > 0;
+
+            const titleChanged = currentTitle !== originalTitle;
+            const bodyChanged = currentBody !== originalBody;
+
+            saveBtn.disabled = !(titleChanged || bodyChanged || imageChanged);
+        }
+
+
+            bodyInput.addEventListener("input", checkIfChanged);
+            imageInput.addEventListener("change", checkIfChanged);
+            titleInput.addEventListener("input", checkIfChanged);
+
+        });
+    </script>
+
+
 }
