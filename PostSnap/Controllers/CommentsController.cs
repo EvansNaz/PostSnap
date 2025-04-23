@@ -87,5 +87,35 @@ namespace PostSnap.Controllers
 
             return RedirectToAction("Details", "Posts", new {id=dto.PostId});
         }
+
+        // COMMENT: Comment/Delete/5
+        [Authorize]
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult>Delete(int id)
+        {
+            var comment = await _context.Comments.FindAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (comment == null || comment.IsDeleted)
+            {
+                return NotFound();
+            }
+            if(comment.UserId != userId)
+            {
+                return Forbid();// Only owner can delete
+            }
+
+            comment.IsDeleted = true;
+            comment.LastModifiedAt = DateTime.Now;
+            TempData["Success"] = "Post deleted successfully";
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Posts", new { id = comment.Id });
+        }
+
+
     }
 }
