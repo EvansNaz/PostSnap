@@ -109,11 +109,11 @@ namespace PostSnap.Controllers
 
             comment.IsDeleted = true;
             comment.LastModifiedAt = DateTime.Now;
-            TempData["Success"] = "Post deleted successfully";
+            TempData["Success"] = "Comment deleted successfully";
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", "Posts", new { id = comment.Id });
+            return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
 
         [Authorize(Roles = "Admin")]
@@ -129,7 +129,7 @@ namespace PostSnap.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "Comment permanantly deleted";
-            return RedirectToAction("Details", "Posts", new { id = comment.Id});
+            return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
     }
 }

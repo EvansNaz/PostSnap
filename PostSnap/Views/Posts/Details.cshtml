@@ -186,7 +186,6 @@
 @section Scripts {
 
     <!-- Comment Edit-->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
         function toggleEditForm(commentId) {
@@ -194,7 +193,7 @@
             const content = $(`#comment-content-${commentId}`);
             const editBtn = $(`#edit-btn-${commentId}`);
             const textarea = $(`#edit-textarea-${commentId}`); // Get the textarea
-            const originalContent = textarea.data("original-content");
+            const originalContent = textarea.data("original-content").trim();
 
 
             // Check if the form is currently hidden
@@ -220,8 +219,8 @@
         //Check content to enable or disable the Save button
         function checkIfChanged(commentId) {
             const textarea = $(`#edit-textarea-${commentId}`);
-            const originalContent = textarea.data("original-content");
-            const currentContent = textarea.val();
+            const originalContent = textarea.data("original-content").trim();
+            const currentContent = textarea.val().trim();
             const saveBtn = textarea.closest("form").find("button[type='submit']");
 
             // Compare and enable/disable
