@@ -6,6 +6,38 @@
 
 <div >
     <div class="d-flex justify-content-between">
+        @if (PostPermissions.CanHardDelete(User))
+        {
+            <!-- Hard Delete Icon Button (Admin only) -->
+            <div class="dropdown d-inline ms-2 float-end">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle  mt-1"
+                        type="button"
+                        id="adminDropdown-@Model.Id"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    <i class="bi bi-shield-lock-fill"></i> Admin
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="adminDropdown-@Model.Id">
+                    <li>
+                        <button class="dropdown-item text-danger"
+                                onclick="submitHardDelete(@Model.Id)">
+                            🗑️ Hard Delete
+                        </button>
+                    </li>
+                    <!-- Add more admin options here -->
+                </ul>
+            </div>
+
+
+            <form id="hard-delete-form-@Model.Id"
+                  method="post"
+                  asp-controller="Posts"
+                  asp-action="HardDelete"
+                  asp-route-id="@Model.Id"
+                  style="display:none;">
+                @Html.AntiForgeryToken()
+            </form>
+        }
 
         <h1>Edit Post</h1>
         <!--Delete Form-->
@@ -82,34 +114,74 @@
     }
 
     <script>
+        /**
+         * Runs when the page has finished loading.
+         * Sets up change detection for form fields to toggle the Save button.
+         */
+
+
+        // Runs once the DOM is fully loaded
         document.addEventListener("DOMContentLoaded", function () {
+            // Grab references to key form elements
             const saveBtn = document.querySelector("#saveChangesBtn");
-
             const titleInput = document.querySelector("input[name='Title']");
-            const originalTitle = titleInput.value.trim();
-
             const bodyInput = document.querySelector("textarea[name='Body']");
             const imageInput = document.querySelector("input[type='file'][name='ImageUpload']");
+
+            // Store the original trimmed values of the title and body fields to compare later
+            const originalTitle = titleInput.value.trim();
             const originalBody = bodyInput.value.trim();
 
-        function checkIfChanged() {
-            const currentTitle = titleInput.value.trim();
-            const currentBody = bodyInput.value.trim();
-            const imageChanged = imageInput.files.length > 0;
+            /**
+             * Checks if any field has been modified.
+             * If yes, enables the Save Changes button.
+             */
+            function checkIfChanged() {
+                const currentTitle = titleInput.value.trim(); // current trimmed title
+                const currentBody = bodyInput.value.trim();   // current trimmed body
+                const imageChanged = imageInput.files.length > 0; // true if an image was selected
 
-            const titleChanged = currentTitle !== originalTitle;
-            const bodyChanged = currentBody !== originalBody;
+                const titleChanged = currentTitle !== originalTitle;
+                const bodyChanged = currentBody !== originalBody;
 
-            saveBtn.disabled = !(titleChanged || bodyChanged || imageChanged);
-        }
+                // Enable Save Changes button only if there's any change
+                saveBtn.disabled = !(titleChanged || bodyChanged || imageChanged);
+            }
 
-
+            // Listen for user input in title, body and image fields
             bodyInput.addEventListener("input", checkIfChanged);
             imageInput.addEventListener("change", checkIfChanged);
             titleInput.addEventListener("input", checkIfChanged);
 
+            // Also recheck when a user leaves (blurs) a field to avoid whitespace-only changes
+            titleInput.addEventListener("blur", () => {
+                titleInput.value = titleInput.value.trim();
+                checkIfChanged(); // re-check in case trim caused a change
+            });
+
+            bodyInput.addEventListener("blur", () => {
+                bodyInput.value = bodyInput.value.trim();
+                checkIfChanged();
+            });
+
+            // Trim the values just before the form is submitted (extra safety)
+            document.querySelector("form").addEventListener("submit", function () {
+                titleInput.value = titleInput.value.trim();
+                bodyInput.value = bodyInput.value.trim();
+            });
+
         });
+
+        /**
+         * Admin-only: Submits the hard delete form after confirmation.
+         */        
+        function submitHardDelete(id) {
+            if (confirm('Are you sure you want to permanently delete this comment?')) {
+                document.querySelector(`#hard-delete-form-${id}`).submit();
+            }
+        }
     </script>
+
 
 
 }

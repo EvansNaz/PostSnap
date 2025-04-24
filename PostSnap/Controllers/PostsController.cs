@@ -15,6 +15,8 @@ using X.PagedList;
 
 namespace PostSnap.Controllers
 {
+    [Authorize(Roles = "Admin,User")]
+
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -54,7 +56,7 @@ namespace PostSnap.Controllers
 
         //GET: Posts My Posts(user's post only)
 
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         public IActionResult MyPosts(string searchTerm, string sortOrder, int? page)
         {
             try
@@ -80,7 +82,7 @@ namespace PostSnap.Controllers
         }
 
         // GET: Posts/Details/5
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         public IActionResult Details(int? id, int? page)
         {
             if (id == null)
@@ -122,7 +124,7 @@ namespace PostSnap.Controllers
         }
 
         // GET: Posts/Create
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         public IActionResult Create()
         {
             ViewData["UserId"] = new SelectList(_context.Users, "Id", "UserName");
@@ -134,7 +136,7 @@ namespace PostSnap.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Create(CreatePostDto postDto)
         {
             //Get the authenticated user's ID
@@ -158,7 +160,6 @@ namespace PostSnap.Controllers
                 Body = postDto.Body.Trim(),
                 UserId = userId, //Securely set in the controller
                 CreatedAt = DateTime.Now,
-                LastModifiedAt = DateTime.Now,
                 IsDeleted = false
             };
 
@@ -178,7 +179,7 @@ namespace PostSnap.Controllers
         }
 
         // GET: Posts/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -195,7 +196,7 @@ namespace PostSnap.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(post.UserId != userId)
+            if (post.UserId != userId && !User.IsInRole("Admin"))
             {
                 return Forbid();//if the user that owns the post tries to access the edit view will have a 403(forbidden)
             }
@@ -214,7 +215,7 @@ namespace PostSnap.Controllers
         // POST: Posts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EditPostDto postDto)
@@ -237,7 +238,7 @@ namespace PostSnap.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(post.UserId != userId)
+            if(post.UserId != userId && !User.IsInRole("Admin"))
             {
                 return Forbid(); //Only owner can edit
             }
@@ -260,7 +261,7 @@ namespace PostSnap.Controllers
         }
 
         // POST: Posts/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult>Delete(int id)
@@ -272,7 +273,7 @@ namespace PostSnap.Controllers
             {
                 return NotFound();
             }
-            if (post.UserId != userId)
+            if (post.UserId != userId && !User.IsInRole("Admin"))
             {
                 return Forbid();//Only owner can delete
             }
@@ -286,6 +287,23 @@ namespace PostSnap.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost, ActionName("HardDelete")]
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult> HardDelete(int id)
+        {
+            var post = await _context.Posts.FindAsync(id);
+            if(post == null ) return NotFound();
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Post permanantly deleted";
+
+            return RedirectToAction(nameof(Index));
+        }
+
 
         private bool PostExists(int id)
         {
