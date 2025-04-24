@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace PostSnap.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,User")]
     public class CommentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -39,7 +39,7 @@ namespace PostSnap.Controllers
 
             var comment = new Comment
             {
-                Content = commentDto.Content,
+                Content = commentDto.Content.Trim(),
                 CreatedAt = DateTime.Now,
                 PostId = commentDto.PostId,
                 UserId = userId
@@ -51,7 +51,7 @@ namespace PostSnap.Controllers
             return RedirectToAction("Details", "Posts", new {id =commentDto.PostId});
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         [HttpPost]
         [ValidateAntiForgeryToken]
 
@@ -78,7 +78,7 @@ namespace PostSnap.Controllers
                 return Forbid();
             }
 
-            comment.Content = dto.Content;
+            comment.Content = dto.Content.Trim();
             comment.LastModifiedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
@@ -89,7 +89,7 @@ namespace PostSnap.Controllers
         }
 
         // COMMENT: Comment/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin,User")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
 
