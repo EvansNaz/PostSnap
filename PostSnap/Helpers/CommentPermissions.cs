@@ -23,7 +23,6 @@ namespace PostSnap.Helpers
             return IsAdmin(user);
         }
 
-
         //Check if the comment's owner is the User
         public static bool IsOwner(Comment comment, ClaimsPrincipal user)
         {
@@ -35,6 +34,12 @@ namespace PostSnap.Helpers
         public static bool IsAdmin(ClaimsPrincipal user)
         {
             return user.IsInRole("Admin");
+        }
+
+        //Check if User is authenticated
+        public static bool IsAuthenticated(ClaimsPrincipal user)
+        {
+            return user.IsInRole("User") || user.IsInRole("Admin");
         }
     }
 }
