@@ -1,11 +1,4 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-
-
-
-
+﻿
 // --------------------------------------------
 //BROKEN IMAGE FIX
 // --------------------------------------------
@@ -117,3 +110,76 @@ function previewImage(event) {
         };
     reader.readAsDataURL(file); // Convert file to base64 for preview
     }
+
+// --------------------------------------------
+// POST EDIT VIEW – Enable Save Button When Changes Occur
+// --------------------------------------------
+
+function initEditPostForm() {
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Grab references to key form elements
+        const saveBtn = document.querySelector("#saveChangesBtn");
+        const titleInput = document.querySelector("input[name='Title']");
+        const bodyInput = document.querySelector("textarea[name='Body']");
+        const imageInput = document.querySelector("input[type='file'][name='ImageUpload']");
+
+        // If one of the variables don't exist we leave (Not edit view = leave)
+        if (!saveBtn || !titleInput || !bodyInput || !imageInput) {
+            return;
+        }
+
+        // Store the original trimmed values of the title and body fields to compare later
+        const originalTitle = titleInput.value.trim();
+        const originalBody = bodyInput.value.trim();
+
+        /**
+         * Checks if any field has been modified.
+         * If yes, enables the Save Changes button.
+         */
+        function checkIfPostChanged() {
+            const currentTitle = titleInput.value.trim(); // current trimmed title
+            const currentBody = bodyInput.value.trim();   // current trimmed body
+            const imageChanged = imageInput.files.length > 0; // true if an image was selected
+
+            const titleChanged = currentTitle !== originalTitle;
+            const bodyChanged = currentBody !== originalBody;
+
+            // Enable Save Changes button only if there's any change
+            saveBtn.disabled = !(titleChanged || bodyChanged || imageChanged);
+        }
+
+        // Listen for user input in title, body and image fields
+        titleInput.addEventListener("input", checkIfPostChanged);
+        bodyInput.addEventListener("input", checkIfPostChanged);
+        imageInput.addEventListener("change", checkIfPostChanged);
+
+        // Also recheck when a user leaves (blurs) a field to avoid whitespace-only changes
+        titleInput.addEventListener("blur", () => {
+            titleInput.value = titleInput.value.trim();
+            checkIfPostChanged();// re-check in case trim caused a change
+        });
+
+        bodyInput.addEventListener("blur", () => {
+            bodyInput.value = bodyInput.value.trim();
+            checkIfPostChanged();
+        });
+
+        // Trim the values just before the form is submitted (extra safety)
+        document.querySelector("form").addEventListener("submit", function () {
+            titleInput.value = titleInput.value.trim();
+            bodyInput.value = bodyInput.value.trim();
+        });
+
+    });
+}
+
+/**
+* Admin-only: Submits the hard delete form after confirmation.
+*/
+function submitHardDelete(id) {
+    if (confirm('Are you sure you want to permanently delete this?')) {
+        document.querySelector(`#hard-delete-form-${id}`).submit();
+    }
+}
+
