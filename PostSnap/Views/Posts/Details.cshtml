@@ -2,7 +2,10 @@
 @using System.Security.Claims
 @using System.Text.Json
 
-
+@* WE use permission helpers for post and comments for admin and user access in post we have straight method call
+    and in comments extra c# code 
+    decide later what to choose
+*@
 
 @{
     ViewData["Title"] = Model.Post.Title;
@@ -43,7 +46,8 @@
             <div class="container mt-3">
                 <div class="d-flex justify-content-between">
                     <a asp-action="Index" class="btn btn-secondary ">Back to Posts</a>
-                    @if (Model.Post.UserId == userId)
+                    @if (PostPermissions.CanEdit(Model.Post, User))
+                        
                     {
                         <a asp-action="Edit" asp-route-id="@Model.Post.Id" class="btn btn-warning ms-auto">Edit</a>
                     }
@@ -67,7 +71,7 @@
                     <div class="border p-2 mb-2 rounded bg-light">
                         <!-- Comment Content Display -->
                         <div id="@contentDisplayId">
-                            <p class="mb-1">@comment.Content</p>
+                            <p class="mb-1">@comment.Content?.Trim()</p>
                             <small class="text-muted">
                                 By <strong>@(comment.User?.UserName ?? "Unknown")</strong>
                                 on @comment.CreatedAt.ToString("MMM dd yyyy, h:mm tt")
@@ -131,7 +135,7 @@
                                           name="Content"
                                           class="form-control mb-2"
                                           required
-                                          data-original-content="@comment.Content"
+                                          data-original-content="@comment.Content?.Trim()"
                                           oninput="checkIfChanged('@comment.Id')">@comment.Content</textarea>
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-sm btn-success" disabled>Save</button>
@@ -166,7 +170,7 @@
                 <p class="text-muted">No comments yet.</p>
             }
 
-            @if (User.Identity.IsAuthenticated)
+            @if (CommentPermissions.IsAuthenticated(User))
             {
                 <form asp-controller="Comments" asp-action="Create" method="post">
                     <div class="mb-3">
@@ -191,9 +195,21 @@
 </div>
 @section Scripts {
 
-    <!-- Comment Edit-->
 
     <script>
+        // === Comment Edit Script ===
+        // This script manages:
+        // - Toggle behavior for comment editing UI
+        // - Safe edit with original/trimmed content comparison
+        // - Confirmation for soft & hard delete operations
+        // - jQuery-based DOM access (used throughout the view)
+
+
+
+        /**
+         * Toggle the visibility of the edit form for a specific comment.
+         * Shows/hides form, updates button visibility, resets textarea on cancel.
+         */
         function toggleEditForm(commentId) {
             const form = $(`#edit-form-${commentId}`);
             const content = $(`#comment-content-${commentId}`);
@@ -217,30 +233,36 @@
                 editBtn.show();
                 // Reset textarea to original content on cancel
                 textarea.val(originalContent);
-                checkIfChanged(commentId);
+                checkIfChanged(commentId);// Re-evaluate Save button state
 
             }
         }
 
-        //Check content to enable or disable the Save button
-        function checkIfChanged(commentId) {
+        /**
+          * Enable the Save button only if content has actually changed (ignores whitespace differences).
+          */
+         function checkIfChanged(commentId) {
             const textarea = $(`#edit-textarea-${commentId}`);
             const originalContent = textarea.data("original-content").trim();
             const currentContent = textarea.val().trim();
             const saveBtn = textarea.closest("form").find("button[type='submit']");
 
-            // Compare and enable/disable
+            // Only enable Save if trimmed content differs
             saveBtn.prop("disabled", currentContent === originalContent);
 
         }
-
+        /**
+         * Trigger soft delete with confirmation.
+         */
         function submitDelete(commentId) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 $(`#delete-form-${commentId}`).submit();
             }
         }
-
-                function submitHardDelete(commentId) {
+        /**
+         * Trigger hard delete with admin permission and confirmation.
+         */
+        function submitHardDelete(commentId) {
             if (confirm('Are you sure you want to permanently delete this comment?')) {
                 $(`#hard-delete-form-${commentId}`).submit();
             }
