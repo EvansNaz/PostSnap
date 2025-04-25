@@ -29,6 +29,7 @@ namespace PostSnap.Controllers
 
 
         // GET: Posts Index
+        [AllowAnonymous]
         public IActionResult Index(string searchTerm, string sortOrder, int? page)
         {
             try
