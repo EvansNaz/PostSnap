@@ -71,6 +71,9 @@ namespace PostSnap.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+            [Required]
+            [Display(Name = "Username")]
+            public string Username { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -113,9 +116,26 @@ namespace PostSnap.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
+                // Validate that username is unique
+                var existingUser = await _userManager.FindByNameAsync(Input.Username);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError(string.Empty, $"Username: {existingUser} is already taken");
+                    return Page();
+                }
+
+                // Validate that email is unique
+                var existingEmailUser = await _userManager.FindByEmailAsync(Input.Email);
+                if (existingEmailUser != null)
+                {
+                    ModelState.AddModelError(string.Empty, $"Email: {existingEmailUser.Email} is already registered");
+                    return Page();
+                }
+
+
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _userStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
