@@ -12,7 +12,6 @@
 <div class="d-flex justify-content-center mt-4">
     @if (isCommentPagination)
     {
-        // We're in the Post Details view, paginating comments
         @Html.PagedListPager(Model, page => Url.Action("Details", new
             {
                 page,
@@ -23,38 +22,70 @@
         UlElementClasses = new[] { "pagination" },
         LiElementClasses = new[] { "page-item" },
         PageClasses = new[] { "page-link" },
-        DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-        DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always,
         DisplayLinkToIndividualPages = true,
         MaximumPageNumbersToDisplay = 5,
         EllipsesFormat = "...",
-        LinkToFirstPageFormat = "{0}",
-        LinkToLastPageFormat = "{0}",
+        LinkToFirstPageFormat = "&laquo;",  // «
+        LinkToPreviousPageFormat = "&lsaquo;", // ‹
+        LinkToNextPageFormat = "&rsaquo;", // ›
+        LinkToLastPageFormat = "&raquo;",  // »
     })
     }
     else
     {
-        // We're in Index or MyPosts — include the correct action name dynamically
-        @Html.PagedListPager(Model, page => Url.Action(actionName, new
+        <div class="d-flex flex-column align-items-center mt-4">
+            <!-- Page Numbers -->
+            <div>
+                @Html.PagedListPager(Model, page => Url.Action(actionName, new
+                    {
+                        page,
+                        searchTerm,
+                        sortOrder
+                    }),
+                         new PagedListRenderOptions
             {
-                page,
-                searchTerm,
-                sortOrder,
-            }),
-                new PagedListRenderOptions
-    {
-        UlElementClasses = new[] { "pagination" },
-        LiElementClasses = new[] { "page-item" },
-        PageClasses = new[] { "page-link" },
-        DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-        DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-        DisplayLinkToNextPage = PagedListDisplayMode.Never,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
-        DisplayLinkToIndividualPages = true,
-        MaximumPageNumbersToDisplay = 5,
-        EllipsesFormat = "...",
-        LinkToFirstPageFormat = "<strong style='color:black;'>{0}</strong>",
-        LinkToLastPageFormat = "<strong style='color:black;'>{0}</strong>"
-    })
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+                DisplayLinkToNextPage = PagedListDisplayMode.Never,
+                DisplayLinkToIndividualPages = true,
+                MaximumPageNumbersToDisplay = 5,
+                LinkToFirstPageFormat = "<strong>{0}</strong>",
+                LinkToLastPageFormat = "<strong>{0}</strong>",
+                EllipsesFormat = "..."
+            })
+            </div>
+
+            <!-- Prev / Next Buttons -->
+            <div class="mt-2">
+                @Html.PagedListPager(Model, page => Url.Action(actionName, new
+                    {
+                        page,
+                        searchTerm,
+                        sortOrder
+                    }),
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+                DisplayLinkToLastPage = PagedListDisplayMode.Never,
+                DisplayLinkToIndividualPages = false,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                LinkToPreviousPageFormat = "&lsaquo; Prev",
+                LinkToNextPageFormat = "Next &rsaquo;",
+            })
+            </div>
+        </div>
+
     }
 </div>

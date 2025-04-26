@@ -30,12 +30,8 @@ body {
   text-align: start;
 }
 
-/*
-    ------------------
-    INDEX_DETAILS VIEW
-    ------------------
-*/
-.pagination .page-link {
+
+/*.pagination .page-link {
     color: #007bff;
     margin: 0 3px;
     border-radius: 10px;
@@ -45,41 +41,76 @@ body {
     background-color: #007bff;
     color: white;
     border-color: #007bff;
-}
+}*/
+/*-----------------------------------------------------------*/
 
+/*
+    ------------------
+    INDEX_MY-POSTS VIEW
+    ------------------
+*/
 .form-select:focus, .form-control:focus {
     border-color: #008000;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(0, 220, 0, 0.6);
 }
 
-.image-container {
-    max-block-size:500px;
-    min-block-size:100px;
-    width: 100%;
+/* Post Card Improvements */
+.post-card {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
 
-    aspect-ratio:auto;
+    .post-card:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+    }
+
+/* Divider */
+hr {
+    border-top: 2px solid #eee;
+    width: 50%;
+    margin: 0 auto;
+}
+
+/* Faded ... text at the end */
+.text-fade {
+    opacity: 0.6;
+}
+
+/* Improved Image Container */
+.image-container {
+    max-height: 500px;
+    min-height: 200px;
+    width: 100%;
     overflow: hidden;
     border-radius: 0.5rem;
-    margin-bottom: 1rem; 
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+    .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* changed from fill to cover */
+        transition: transform 0.3s ease;
+        border-radius: 0.5rem;
+    }
 
-.image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit:fill;
-    transition: transform 0.3s ease;
-    border-radius: 0.5rem;
+        .image-container img:hover {
+            transform: scale(1.05);
+        }
+
+/* Read More Button Animation */
+.read-more-btn {
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.image-container img:hover {
-    transform: scale(1.02);
-}
+    .read-more-btn:hover {
+        background-color: #0056b3; /* slightly darker blue */
+        transform: scale(1.05);
+    }
 
-    
+    /*-----------------------------------------------------------*/
 /*
     Upload requirements failed
 */
@@ -100,6 +131,74 @@ body {
 .flash-error {
     animation: flashError 0.5s ease;
 }
+/*-----------------------------------------------------------*/
 
 
 
+
+/* Customize the border-radius for the select dropdown */
+.form-select {
+    border-radius: 12px; /* Change to your desired radius */
+    border: 2px solid #ddd; /* Optionally adjust the border */
+    background-color: #f8f8f8; /* Background color for the dropdown */
+}
+
+    /* Optional: Hover and focus states */
+    .form-select:hover {
+        border-color: #007bff; /* Change border color when hovering */
+        background-color: #e6f7ff; /* Background color when hovering */
+    }
+
+    .form-select:focus {
+        border-color: #008000; /* Focus border color */
+        box-shadow: 0 0 8px rgba(0, 220, 0, 0.6); /* Green shadow on focus */
+        background-color: #ffffff; /* White background on focus */
+    }
+/*-----------------------------------------------------------*/
+
+/*
+    -------------------
+    -PAGINATION
+    --------------------
+*/
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding-left: 0;
+    justify-content: center;
+}
+
+    .pagination .page-link {
+        color: #007bff;
+        margin: 0 5px;
+        padding: 8px 14px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background-color: transparent;
+        font-weight: 500;
+        min-width: 45px;
+        text-align: center;
+    }
+
+        .pagination .page-link:hover {
+            background-color: #e9f5ff;
+            color: #0056b3;
+            text-decoration: none;
+            border-color: #007bff;
+        }
+
+    .pagination .active .page-link {
+        background-color: #007bff;
+        color: #fff;
+        border-color: #007bff;
+    }
+
+    .pagination .disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: transparent;
+        border-color: transparent;
+    }
+/*-----------------------------------------------------------*/
