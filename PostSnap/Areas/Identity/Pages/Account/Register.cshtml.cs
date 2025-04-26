@@ -134,7 +134,7 @@ namespace PostSnap.Areas.Identity.Pages.Account
 
 
                 var user = CreateUser();
-
+                await _userManager.AddToRoleAsync(user, "User");//Assign User role to new user
                 await _userStore.SetUserNameAsync(user, Input.Username, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
