@@ -73,7 +73,7 @@ namespace PostSnap.Controllers
             //check if changes were made
             //if (dto.Content == comment.Content) return RedirectToAction("Details", "Posts", new { id = dto.PostId });
 
-            if (comment == null || comment.UserId != userId)
+            if (comment == null || comment.UserId != userId && !User.IsInRole("Admin"))
             {
                 return Forbid();
             }
@@ -102,9 +102,9 @@ namespace PostSnap.Controllers
             {
                 return NotFound();
             }
-            if(comment.UserId != userId)
+            if(comment.UserId != userId && !User.IsInRole("Admin"))
             {
-                return Forbid();// Only owner can delete
+                return Forbid();// Only owner and admin can delete
             }
 
             comment.IsDeleted = true;
