@@ -34,6 +34,8 @@ namespace PostSnap.Controllers
             if(!ModelState.IsValid)
             {
                 //Go to Details page of the post that was about to get a comment
+                TempData["Error"] = "Invalid comment content.";
+
                 return RedirectToAction("Details", "Posts", new {id = commentDto.PostId});
             }
 
