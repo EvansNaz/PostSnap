@@ -29,8 +29,10 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-sm rounded-4 p-4 mb-4">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h1 class="h2 mb-3">@Model.Post.Title</h1>
+                    <hr class="my-3">
+
                     <p class="text-muted small">
                         By <strong>@(Model.Post.User?.UserName ?? "Unknown")</strong> |
                         @Model.Post.CreatedAt.ToString("MMMM dd, yyyy, h:mm tt")
