@@ -66,9 +66,10 @@ document.addEventListener("DOMContentLoaded", function () {//Ensures the DOM is 
     // Main function triggered when user selects a file
 function previewImage(event) {
     const currentImage = document.getElementById('currentImage');
-        const input = event.target; // The file input element
+    const input = event.target; // The file input element
     const preview = document.getElementById('imagePreview'); // The image preview element
     const errorSpan = document.getElementById('imageError'); // The span for showing validation errors
+    const cancelBtn = document.getElementById('cancelImageBtn');// Cancel button in new image preview
     const file = input.files[0]; // Get the selected file
 
     // Reset preview and error message
@@ -76,6 +77,8 @@ function previewImage(event) {
     preview.src = "#"; // Reset preview src
     errorSpan.textContent = ""; // Clear error text
     errorSpan.classList.remove('flash-error'); // Remove previous animation
+    cancelBtn.classList.add('d-none'); // Hide cancel button by default
+
 
     // If no file was selected, show the current image again (if available)
     if (!file) {
@@ -103,18 +106,51 @@ function previewImage(event) {
         input.value = ""; // Clear large file from input
     showError("File size must be less than 2MB."); // Show inline error
     return;
-        }
+    }
+
     if (currentImage) {
         currentImage.classList.add('d-none'); // hide old image
     }
+
     // If valid, read file and show preview
     const reader = new FileReader();
     reader.onload = function (e) {
         preview.src = e.target.result; // Set image source to the uploaded file
-    preview.classList.remove('d-none'); // Show the image preview
-        };
+        preview.classList.remove('d-none'); // Show the image preview
+        cancelBtn.classList.remove('d-none'); // Show cancel button when valid image is selected
+
+    };
     reader.readAsDataURL(file); // Convert file to base64 for preview
+}
+
+// Cancel the selected new image and reset to current image
+function cancelImageSelection() {
+    const currentImage = document.getElementById('currentImage');
+    const input = document.getElementById('imageUploadInput');
+    const preview = document.getElementById('imagePreview');
+    const errorSpan = document.getElementById('imageError');
+    const cancelBtn = document.getElementById('cancelImageBtn');
+
+    // Reset file input
+    input.value = "";
+
+    // Hide preview
+    preview.src = "#";
+    preview.classList.add('d-none');
+
+    // Hide cancel button
+    cancelBtn.classList.add('d-none');
+
+    // Clear any errors
+    errorSpan.textContent = "";
+    errorSpan.classList.remove('flash-error');
+
+    // Show original image again
+    if (currentImage) {
+        currentImage.classList.remove('d-none');
     }
+}
+
 
 // --------------------------------------------
 // POST EDIT VIEW – Enable Save Button When Changes Occur

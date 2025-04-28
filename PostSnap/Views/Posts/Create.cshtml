@@ -4,64 +4,81 @@
     ViewData["Title"] = "Create";
 }
 
-<!-- Heading Section -->
-<h1 class="text-center my-4">Create a New Post</h1>
+<main class="container py-5">
+    <section class="text-center mb-4">
+        <h1 class="fw-bold">Create a New Post</h1>
+        <p class="text-muted lead">Post Details</p>
+        <hr class="w-25 mx-auto">
+    </section>
 
-<h4 class="text-center mb-4">Post Details</h4>
-<hr />
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow rounded-3 p-4">
+                <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
+                    @Html.AntiForgeryToken()
 
-<!-- Form Container (Centered and Responsive) -->
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6 col-xl-5">
-        <!-- Card for Form -->
-        <div class="card p-4 shadow-lg rounded">
-            <form asp-action="Create" method="post" enctype="multipart/form-data">
-                @Html.AntiForgeryToken()
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                <!-- Title Field -->
-                <div class="form-group">
-                    <label asp-for="Title" class="control-label font-weight-bold"></label>
-                    <input asp-for="Title" class="form-control form-control-lg" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
-
-                <!-- Body Field -->
-                <div class="form-group">
-                    <label asp-for="Body" class="control-label font-weight-bold"></label>
-                    <textarea asp-for="Body" class="form-control form-control-lg" rows="6"></textarea>
-                    <span asp-validation-for="Body" class="text-danger"></span>
-                </div>
-                <br />
-                <!-- Image Upload Field -->
-                <div class="form-group">
-                    <label asp-for="ImageUpload" class="control-label font-weight-bold">Upload Image</label>
-                    <input asp-for="ImageUpload" type="file" class="form-control-file" id="imageUploadInput" accept="image/*" onchange="previewImage(event)" />
-                    <!-- Preview Image -->
-                    <div class="form-group text-center mt-3">
-                        <span id="imageError" class="text-danger d-block mt-2"></span>
-
-                        <img id="imagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none" style="max-height: 300px;" />
+                    <!-- Title -->
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label fw-semibold"></label>
+                        <input asp-for="Title" class="form-control form-control-lg" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
                     </div>
 
-                    <span asp-validation-for="ImageUpload" class="text-danger"></span>
-                </div>
-                <br />
+                    <!-- Body -->
+                    <div class="mb-4">
+                        <label asp-for="Body" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Body" class="form-control form-control-lg" rows="6"></textarea>
+                        <span asp-validation-for="Body" class="text-danger small"></span>
+                    </div>
 
-                <!-- Submit Button -->
-                <div class="form-group">
-                    <input type="submit" value="Create Post" class="btn btn-primary btn-block btn-lg" />
-                </div>
-            </form>
+                    <!-- Image Upload -->
+                    <div class="mb-4">
+                        <label asp-for="ImageUpload" class="form-label fw-semibold">Upload Image</label>
+                        <input asp-for="ImageUpload" type="file" class="form-control" id="imageUploadInput" accept="image/*" onchange="previewImage(event)" />
+
+                        <div class="form-group text-center mt-3">
+                            <span id="imageError" class="text-danger d-block mt-2"></span>
+
+                            <img id="imagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none border border-2 p-2 bg-light" style="max-height: 300px;" />
+
+                            <!-- NEW Cancel Button (Hidden by Default) -->
+                            <div class="mt-2">
+                                <button type="button" id="cancelImageBtn" class="btn btn-outline-danger btn-sm d-none" onclick="cancelImageSelection()">
+                                    Cancel New Image
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <span asp-validation-for="ImageUpload" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold text-uppercase shadow-sm" style="background: linear-gradient(90deg, #0d6efd 0%, #0b5ed7 100%); border: none;">
+                            Create Post
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Back to Posts Link -->
+            <div class="text-center mt-4">
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary fw-bold text-uppercase shadow-sm"
+                   style="transition: all 0.3s ease;"
+                   onmouseover="this.style.transform='scale(1.05)';"
+                   onmouseout="this.style.transform='scale(1)';">
+                    Back to Posts
+                </a>
+            </div>
 
         </div>
     </div>
-</div>
-
-<!-- Back Link -->
-<div class="text-center mt-3">
-    <a asp-action="Index" class="btn btn-link">Back to List</a>
-</div>
+</main>
 
 @section Scripts {
     @{
