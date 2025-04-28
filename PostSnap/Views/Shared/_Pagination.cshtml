@@ -12,30 +12,60 @@
 <div class="d-flex justify-content-center mt-4">
     @if (isCommentPagination)
     {
-        @Html.PagedListPager(Model, page => Url.Action("Details", new
+        <div class="d-flex flex-column align-items-center mt-4">
+            <!-- Page Numbers -->
+            <div>
+                    @Html.PagedListPager(Model, page => Url.Action("Details", new
+                        {
+                            page,
+                            id = postid
+                        }) + "#comments",
+                            new PagedListRenderOptions
+                {
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" },
+                    DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                    DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                    DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+                    DisplayLinkToNextPage = PagedListDisplayMode.Never,
+                    DisplayEllipsesWhenNotShowingAllPageNumbers = false,
+                    DisplayLinkToIndividualPages = true,
+                    MaximumPageNumbersToDisplay = 5,
+                    EllipsesFormat = "...",
+                    LinkToFirstPageFormat = "&laquo;",
+                    LinkToPreviousPageFormat = "&lsaquo;",
+                    LinkToNextPageFormat = "&rsaquo;",
+                    LinkToLastPageFormat = "&raquo;",
+
+                })
+                </div>
+            <!-- Prev / Next Buttons -->
+            <div class="mt-2">
+                @Html.PagedListPager(Model, page => Url.Action("Details", new
+                    {
+                        page,
+                        id = postid
+                    }) + "#comments",
+                         new PagedListRenderOptions
             {
-                page,
-                id = postid
-            }) + "#comments",
-                new PagedListRenderOptions
-    {
-        UlElementClasses = new[] { "pagination" },
-        LiElementClasses = new[] { "page-item" },
-        PageClasses = new[] { "page-link" },
-        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-        DisplayLinkToIndividualPages = true,
-        MaximumPageNumbersToDisplay = 5,
-        EllipsesFormat = "...",
-        LinkToFirstPageFormat = "&laquo;",
-        LinkToPreviousPageFormat = "&lsaquo;",
-        LinkToNextPageFormat = "&rsaquo;",
-        LinkToLastPageFormat = "&raquo;",
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+                DisplayLinkToLastPage = PagedListDisplayMode.Never,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false,
+                DisplayLinkToIndividualPages = false,
+                MaximumPageNumbersToDisplay = 5,
+                EllipsesFormat = "...",
+                LinkToPreviousPageFormat = "&lsaquo; Prev",
+                LinkToNextPageFormat = "Next &rsaquo;",
 
-    })
-
+            })
+            </div>
+        </div>
     }
     else
     {
@@ -57,10 +87,12 @@
                 DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
                 DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
                 DisplayLinkToNextPage = PagedListDisplayMode.Never,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false,
+
                 DisplayLinkToIndividualPages = true,
                 MaximumPageNumbersToDisplay = 5,
-                LinkToFirstPageFormat = "<strong>{0}</strong>",
-                LinkToLastPageFormat = "<strong>{0}</strong>",
+                LinkToFirstPageFormat = "&laquo;",
+                LinkToLastPageFormat = "&raquo;",
                 EllipsesFormat = "..."
             })
             </div>
