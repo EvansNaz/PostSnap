@@ -25,21 +25,21 @@
 else
 {
     <!-- Search Bar -->
-    <nav class="navbar navbar-light justify-content-center mb-3">
-        <form asp-action="Index" method="get" class="form-inline d-flex">
+    <div class="d-flex justify-content-center mb-3">
+        <form asp-action="Index" method="get" class="form-inline d-flex w-75 p-2 rounded ">
             <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
-            <input type="search" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control mr-2" placeholder="Search posts" />
-            <button type="submit" class="btn btn-outline-success">
-                🔍
+            <input type="search" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control mr-2 rounded-pill shadow-sm border-primary" placeholder="Search posts" />
+            <button type="submit" class="btn btn-outline-primary rounded-pill px-3 ">
+                <i class="bi bi-search"></i> <!-- Using Bootstrap Icons for the search icon -->
             </button>
         </form>
-    </nav>
+    </div>
 
     <!-- Sort Dropdown -->
     <div class="d-flex justify-content-center mb-4">
-        <form asp-action="Index" method="get" class="d-flex gap-2 align-items-center">
+        <form asp-action="Index" method="get" class="d-flex gap-3 align-items-center w-75">
             <input type="hidden" name="searchTerm" value="@ViewData["CurrentFilter"]" />
-            <select name="sortOrder" class="form-select w-auto" onchange="this.form.submit()">
+            <select name="sortOrder" class="form-select shadow-sm rounded-pill w-auto p-2" onchange="this.form.submit()">
                 @{
                     var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
                 }
@@ -51,9 +51,18 @@ else
         </form>
     </div>
 
+    <!-- Posts List (assuming there's a posts list below this) -->
+    <div class="posts-list">
+        @* Your posts list here *@
+    </div>
+
+    <!-- Create New Post Button -->
     <p class="text-center mt-4">
-        <a asp-action="Create" class="btn btn-success">Create New Post</a>
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 py-2 shadow-sm text-white">
+            <i class="bi bi-pencil-square"></i> Create New Post
+        </a>
     </p>
+
 
     <!--  Start AJAX Container -->
     <div id="pagination-container">
