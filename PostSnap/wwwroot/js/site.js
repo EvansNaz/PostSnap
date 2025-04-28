@@ -77,8 +77,13 @@ function previewImage(event) {
     errorSpan.textContent = ""; // Clear error text
     errorSpan.classList.remove('flash-error'); // Remove previous animation
 
-    if (!file) return; // Exit if no file was selected
-
+    // If no file was selected, show the current image again (if available)
+    if (!file) {
+        if (currentImage) {
+            currentImage.classList.remove('d-none'); // Show current image if available
+        }
+        return; // Exit if no file was selected
+    }
     // Define valid extensions and size limit
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
     const maxSize = 2 * 1024 * 1024; // 2 MB
