@@ -62,6 +62,7 @@ PostSnap is a full-stack ASP.NET MVC web application that allows users to create
 
 ---
 
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -70,3 +71,8 @@ PostSnap is a full-stack ASP.NET MVC web application that allows users to create
 - SQL Server Management Studio (SSMS)
 - Local SQL Server instance (e.g., SQL Server Express)
 
+### Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/EvansNaz/PostSnap.git
