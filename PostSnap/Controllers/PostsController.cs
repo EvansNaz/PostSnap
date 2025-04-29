@@ -133,8 +133,6 @@ namespace PostSnap.Controllers
         }
 
         // POST: Posts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,User")]
@@ -214,8 +212,6 @@ namespace PostSnap.Controllers
         }
 
         // POST: Posts/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Admin,User")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -289,6 +285,7 @@ namespace PostSnap.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //Hard Delete Admin Only
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("HardDelete")]
         [ValidateAntiForgeryToken]
@@ -304,13 +301,6 @@ namespace PostSnap.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
-        private bool PostExists(int id)
-        {
-            return _context.Posts.Any(e => e.Id == id);
-        }
-
 
         //Image Upload Or Replace Method
         private async Task<string> SaveImageAsync(IFormFile imageUpload, string? existingFileName = null)

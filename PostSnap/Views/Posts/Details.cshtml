@@ -30,9 +30,12 @@
         <div class="col-lg-8">
             <div class="card shadow-sm rounded-4 p-4 mb-4">
                 <div class="card-body text-center">
+
+                    <!--Title-->
                     <h1 class="h2 mb-3">@Model.Post.Title</h1>
                     <hr class="my-3">
 
+                    <!--User-->
                     <p class="text-muted small">
                         By <strong>@(Model.Post.User?.UserName ?? "Unknown")</strong> |
                         @Model.Post.CreatedAt.ToString("MMMM dd, yyyy, h:mm tt")
@@ -44,6 +47,7 @@
                         }
                     </p>
 
+                    <!--Image-->
                     @if (!string.IsNullOrEmpty(Model.Post.ImageFileName))
                     {
                         <div class="image-container mb-3">
@@ -53,7 +57,6 @@
                         </div>
                     }
 
-                    <hr />
 
                     <p class="fs-5">@Model.Post.Body</p>
                 </div>
@@ -69,6 +72,7 @@
                 }
             </div>
 
+            <!-- Comments -->
             <h4 id="comments" class="mb-3">💬 Comments</h4>
 
             <div class="comments-container">
@@ -160,6 +164,7 @@
                                         </div>
                                     </form>
 
+                                    <!--  Delete Form-->
                                     <form id="delete-form-@comment.Id"
                                           method="post"
                                           asp-controller="Comments"
@@ -176,7 +181,7 @@
                         </div>
                     }
 
-
+                    <!-- Pagination-->
                     @await Html.PartialAsync("_Pagination", Model.Comments)
                 }
                 else

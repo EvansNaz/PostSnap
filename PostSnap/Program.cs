@@ -22,7 +22,7 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // --------------------------------------------
-// SEED FAKE USERS AND POSTS  and Admin (Only runs once)
+// SEED FAKE USERS AND POSTS WITH COMMENTS  & ADMIN (ONLY SEEDS ONCE)
 // --------------------------------------------
 using (var scope = app.Services.CreateScope())
 {
@@ -72,3 +72,26 @@ app.MapRazorPages()
 
 app.Run();
 
+/*
+Ready Users when project is seeded:
+----------------------------------------------------------------------
+
+USERNAME:
+testuser@example.com
+
+PASSWORD:
+Test123!User
+---------------------------------------------------------------------
+
+The rest of the seeded Users have the PASSWORD: 
+Password123!
+----------------------------------------------------------------------
+
+ADMIN'S ACCOUNT:
+
+USERNAME:
+admin@example.com
+
+PASSWORD:
+AdminPassword123!
+ */

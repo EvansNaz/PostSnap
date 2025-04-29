@@ -18,6 +18,7 @@ namespace PostSnap.Controllers
             _context = context;
         }
 
+        //Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(CreateCommentDto commentDto)
@@ -53,6 +54,7 @@ namespace PostSnap.Controllers
             return RedirectToAction("Details", "Posts", new {id =commentDto.PostId});
         }
 
+        //Edit
         [Authorize(Roles = "Admin,User")]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -118,6 +120,7 @@ namespace PostSnap.Controllers
             return RedirectToAction("Details", "Posts", new { id = comment.PostId });
         }
 
+        //Hard Delete
         [Authorize(Roles = "Admin")]
         [HttpPost] [ValidateAntiForgeryToken]
         [ActionName("HardDelete")]

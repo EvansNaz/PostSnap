@@ -18,8 +18,11 @@
             : "No posts found.")
     </p>
 
+    <!-- Create New Post Button -->
     <p class="text-center mt-4">
-        <a asp-action="Create" class="btn btn-success">Create New Post</a>
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 py-2 shadow-sm text-white">
+            <i class="bi bi-pencil-square"></i> Create New Post
+        </a>
     </p>
 }
 else
@@ -37,9 +40,9 @@ else
 
     <!-- Sort Dropdown -->
     <div class="d-flex justify-content-center mb-4">
-        <form asp-action="Index" method="get" class="d-flex gap-3 align-items-center w-75">
+        <form asp-action="Index" method="get" class="d-flex gap-3 align-items-center ">
             <input type="hidden" name="searchTerm" value="@ViewData["CurrentFilter"]" />
-            <select name="sortOrder" class="form-select shadow-sm rounded-pill w-auto p-2" onchange="this.form.submit()">
+            <select name="sortOrder" class="form-select shadow-sm rounded-pill w-auto p-2 pe-5" onchange="this.form.submit()">
                 @{
                     var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
                 }
@@ -49,11 +52,6 @@ else
                 <option value="comment_count" selected="@(currentSort == "comment_count" ? "selected" : null)">Most Commented</option>
             </select>
         </form>
-    </div>
-
-    <!-- Posts List (assuming there's a posts list below this) -->
-    <div class="posts-list">
-        @* Your posts list here *@
     </div>
 
     <!-- Create New Post Button -->
@@ -99,8 +97,9 @@ else
                                             <img src="/uploads/@post.ImageFileName" alt="Post Image" class="img-fluid rounded" />
                                         </a>
                                     </div>
+                                    <hr class="my-3">
+
                                 }
-                                <hr class="my-3">
 
                                 <!-- Post Body Preview -->
                                 <p class="card-text fs-5">
