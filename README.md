@@ -67,5 +67,6 @@ PostSnap is a full-stack ASP.NET MVC web application that allows users to create
 
 - Visual Studio 2022+
 - .NET 9 Framework 
-- SQL Server 
+- SQL Server Management Studio (SSMS)
+- Local SQL Server instance (e.g., SQL Server Express)
 
