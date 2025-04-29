@@ -149,6 +149,11 @@ function cancelImageSelection() {
     if (currentImage) {
         currentImage.classList.remove('d-none');
     }
+
+    //Recheck form state
+    if (typeof checkIfPostChanged === "function") {
+        checkIfPostChanged();
+    }
 }
 
 
@@ -189,6 +194,9 @@ function initEditPostForm() {
             // Enable Save Changes button only if there's any change
             saveBtn.disabled = !(titleChanged || bodyChanged || imageChanged);
         }
+
+        window.checkIfPostChanged = checkIfPostChanged;//make it accessible from anywhere
+
 
         // Listen for user input in title, body and image fields
         titleInput.addEventListener("input", checkIfPostChanged);
