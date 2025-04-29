@@ -1,0 +1,123 @@
+﻿@model PostSnap.Dtos.EditPostDto
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<main class="container py-5">
+    <section class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="fw-bold mb-0">Edit Post</h1>
+
+            <!-- Delete Button -->
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('This Post will be deleted!')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger shadow-sm">Delete Post</button>
+            </form>
+        </div>
+
+        @if (PostPermissions.CanHardDelete(User))
+        {
+            <!-- Admin Dropdown -->
+            <div class="dropdown mb-4">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="adminDropdown-@Model.Id"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+                    <i class="bi bi-shield-lock-fill"></i> Admin
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="adminDropdown-@Model.Id">
+                    <li>
+                        <button class="dropdown-item text-danger" onclick="submitHardDelete(@Model.Id)">
+                            🗑️ Hard Delete
+                        </button>
+                    </li>
+                </ul>
+
+                <form id="hard-delete-form-@Model.Id" method="post" asp-controller="Posts" asp-action="HardDelete" asp-route-id="@Model.Id" style="display:none;">
+                    @Html.AntiForgeryToken()
+                </form>
+            </div>
+        }
+    </section>
+
+    <!-- Edit Form -->
+    <section class="card shadow-sm p-4 rounded-3">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <!-- Title -->
+            <div class="mb-4">
+                <label asp-for="Title" class="form-label fw-semibold"></label>
+                <input asp-for="Title" class="form-control form-control-lg" data-original-title="@Model.Title" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+
+            <!-- Body -->
+            <div class="mb-4">
+                <label asp-for="Body" class="form-label fw-semibold"></label>
+                <textarea asp-for="Body" class="form-control form-control-lg" rows="5" data-original-body="@Model.Body"></textarea>
+                <span asp-validation-for="Body" class="text-danger small"></span>
+            </div>
+
+
+            <!-- Current Image -->
+            @if (!string.IsNullOrEmpty(Model.ImageFileName))
+            {
+                <div class="form-group text-center mb-4" id="currentImage">
+                    <small class="text-muted d-block mb-2">Current Image</small> 
+
+                    <a href="/uploads/@Model.ImageFileName" target="_self" data-lightbox="post-gallery" data-title="@Model.Title">
+                        <img src="/uploads/@Model.ImageFileName" class="img-fluid rounded shadow-sm" alt="Current Post Image" id="currentImage" style="max-height: 300px;" />
+                    </a>
+                </div>
+
+            }
+
+            <!-- Upload New Image -->
+            <div class="mb-4">
+                <label asp-for="ImageUpload" class="form-label fw-semibold">Upload Image</label>
+                <input asp-for="ImageUpload" type="file" class="form-control" id="imageUploadInput" accept="image/*" onchange="previewImage(event)" />
+
+                <div class="form-group text-center mt-3">
+                    <span id="imageError" class="text-danger d-block mt-2"></span>
+
+                    <img id="imagePreview" src="#" alt="Image Preview" class="img-fluid rounded d-none border border-2 p-2 bg-light" style="max-height: 300px;" />
+
+                    <!-- Cancel Button (Hidden by Default) -->
+                    <div class="mt-2">
+                        <button type="button" id="cancelImageBtn" class="btn btn-outline-danger btn-sm d-none" onclick="cancelImageSelection()">
+                            Cancel New Image
+                        </button>
+                    </div>
+                </div>
+
+
+                <span asp-validation-for="ImageUpload" class="text-danger small"></span>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary fw-bold text-uppercase shadow-sm" id="saveChangesBtn" disabled>
+                    Save Changes
+                </button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary fw-bold text-uppercase shadow-sm">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </section>
+</main>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        @*Save Button check script *@
+        initEditPostForm();
+    </script>
+}

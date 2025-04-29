@@ -1,0 +1,125 @@
+﻿@model X.PagedList.IPagedList<object>
+@using X.PagedList.Mvc.Core
+
+@{
+    var searchTerm = ViewData["CurrentFilter"];
+    var sortOrder = ViewData["CurrentSort"];
+    var postid = ViewData["PostId"];
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+    var isCommentPagination = actionName == "Details";
+}
+
+<div class="d-flex justify-content-center mt-4">
+    @if (isCommentPagination)
+    {
+        <div class="d-flex flex-column align-items-center mt-4">
+            <!-- Page Numbers -->
+            <div>
+                    @Html.PagedListPager(Model, page => Url.Action("Details", new
+                        {
+                            page,
+                            id = postid
+                        }) + "#comments",
+                            new PagedListRenderOptions
+                {
+                    UlElementClasses = new[] { "pagination" },
+                    LiElementClasses = new[] { "page-item" },
+                    PageClasses = new[] { "page-link" },
+                    DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                    DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                    DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+                    DisplayLinkToNextPage = PagedListDisplayMode.Never,
+                    DisplayEllipsesWhenNotShowingAllPageNumbers = false,
+                    DisplayLinkToIndividualPages = true,
+                    MaximumPageNumbersToDisplay = 5,
+                    EllipsesFormat = "...",
+                    LinkToFirstPageFormat = "&laquo;",
+                    LinkToPreviousPageFormat = "&lsaquo;",
+                    LinkToNextPageFormat = "&rsaquo;",
+                    LinkToLastPageFormat = "&raquo;",
+
+                })
+                </div>
+            <!-- Prev / Next Buttons -->
+            <div class="mt-2">
+                @Html.PagedListPager(Model, page => Url.Action("Details", new
+                    {
+                        page,
+                        id = postid
+                    }) + "#comments",
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+                DisplayLinkToLastPage = PagedListDisplayMode.Never,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false,
+                DisplayLinkToIndividualPages = false,
+                MaximumPageNumbersToDisplay = 5,
+                EllipsesFormat = "...",
+                LinkToPreviousPageFormat = "&lsaquo; Prev",
+                LinkToNextPageFormat = "Next &rsaquo;",
+
+            })
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column align-items-center mt-4">
+            <!-- Page Numbers -->
+            <div>
+                @Html.PagedListPager(Model, page => Url.Action(actionName, new
+                    {
+                        page,
+                        searchTerm,
+                        sortOrder
+                    }),
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Never,
+                DisplayLinkToNextPage = PagedListDisplayMode.Never,
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false,
+
+                DisplayLinkToIndividualPages = true,
+                MaximumPageNumbersToDisplay = 5,
+                LinkToFirstPageFormat = "&laquo;",
+                LinkToLastPageFormat = "&raquo;",
+                EllipsesFormat = "..."
+            })
+            </div>
+
+            <!-- Prev / Next Buttons -->
+            <div class="mt-2">
+                @Html.PagedListPager(Model, page => Url.Action(actionName, new
+                    {
+                        page,
+                        searchTerm,
+                        sortOrder
+                    }),
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+                DisplayLinkToLastPage = PagedListDisplayMode.Never,
+                DisplayLinkToIndividualPages = false,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                LinkToPreviousPageFormat = "&lsaquo; Prev",
+                LinkToNextPageFormat = "Next &rsaquo;",
+            })
+            </div>
+        </div>
+
+    }
+</div>

@@ -1,0 +1,173 @@
+﻿@using X.PagedList
+@using X.PagedList.Mvc.Core
+@model IPagedList<PostSnap.Models.Post>
+
+@{
+    ViewData["Title"] = "PostSnap";
+}
+
+<h1 class="text-center my-4">
+    @(ViewData["IsMyPosts"] != null ? "📝 Your Posts" : "🌍 All Posts")
+</h1>
+
+@if (!Model.Any())
+{
+    <p class="text-center text-muted mt-4">
+        @(ViewData["IsMyPosts"] != null
+            ? "You haven't posted anything yet."
+            : "No posts found.")
+    </p>
+
+    <!-- Create New Post Button -->
+    <p class="text-center mt-4">
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 py-2 shadow-sm text-white">
+            <i class="bi bi-pencil-square"></i> Create New Post
+        </a>
+    </p>
+}
+else
+{
+    <!-- Search Bar -->
+    <div class="d-flex justify-content-center mb-3">
+        <form asp-action="Index" method="get" class="form-inline d-flex w-75 p-2 rounded ">
+            <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+            <input type="search" name="searchTerm" value="@ViewData["CurrentFilter"]" class="form-control mr-2 rounded-pill shadow-sm border-primary" placeholder="Search posts" />
+            <button type="submit" class="btn btn-outline-primary rounded-pill px-3 ">
+                <i class="bi bi-search"></i> <!-- Using Bootstrap Icons for the search icon -->
+            </button>
+        </form>
+    </div>
+
+    <!-- Sort Dropdown -->
+    <div class="d-flex justify-content-center mb-4">
+        <form asp-action="Index" method="get" class="d-flex gap-3 align-items-center ">
+            <input type="hidden" name="searchTerm" value="@ViewData["CurrentFilter"]" />
+            <select name="sortOrder" class="form-select shadow-sm rounded-pill w-auto p-2 pe-5" onchange="this.form.submit()">
+                @{
+                    var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
+                }
+                <option value="" selected="@(currentSort == "" ? "selected" : null)">Newest</option>
+                <option value="oldest" selected="@(currentSort == "oldest" ? "selected" : null)">Oldest</option>
+                <option value="title_asc" selected="@(currentSort == "title_asc" ? "selected" : null)">Title A-Z</option>
+                <option value="comment_count" selected="@(currentSort == "comment_count" ? "selected" : null)">Most Commented</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Create New Post Button -->
+    <p class="text-center mt-4">
+        <a asp-action="Create" class="btn btn-success rounded-pill px-4 py-2 shadow-sm text-white">
+            <i class="bi bi-pencil-square"></i> Create New Post
+        </a>
+    </p>
+
+
+    <!--  Start AJAX Container -->
+    <div id="pagination-container">
+
+        <!-- Pagination Top Controls -->
+        @await Html.PartialAsync("_Pagination", Model)
+
+        <!-- Posts -->
+        <div class="container text-center">
+            <div class="row justify-content-center">
+                @foreach (var post in Model)
+                {
+                    <div class="col-md-8 mb-4">
+                        <div class="card post-card shadow-lg rounded">
+                            <div class="card-body">
+                                <!-- Post Title -->
+                                <h3 class="card-title text-center mb-3">@post.Title</h3>
+
+                                <!-- Divider -->
+                                <hr class="my-3">
+
+                                <!-- Meta Info: Author and Date -->
+                                <p class="text-muted small text-center mb-4">
+                                    <i class="bi bi-person"></i> <strong>@(post.User?.UserName ?? "Unknown")</strong>
+                                    &nbsp;|&nbsp;
+                                    <i class="bi bi-calendar"></i> @post.CreatedAt.ToString("MMMM dd, yyyy")
+                                </p>
+
+                                <!-- Post Image -->
+                                @if (!string.IsNullOrEmpty(post.ImageFileName))
+                                {
+                                    <div class="image-container mb-4">
+                                        <a href="/uploads/@post.ImageFileName" data-lightbox="post-image" class="image-link">
+                                            <img src="/uploads/@post.ImageFileName" alt="Post Image" class="img-fluid rounded" />
+                                        </a>
+                                    </div>
+                                    <hr class="my-3">
+
+                                }
+
+                                <!-- Post Body Preview -->
+                                <p class="card-text fs-5">
+                                    @if (post.Body.Length > 200)
+                                    {
+                                        @post.Body.Substring(0, 200)
+
+                                        <span class="text-fade">...</span>
+                                    }
+                                    else
+                                    {
+                                        @post.Body
+                                    }
+                                </p>
+
+                                <!-- Read More Button -->
+                                <div class="text-center mt-3">
+                                    <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-primary read-more-btn">
+                                        Read More
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                }
+            </div>
+        </div>
+
+        <!-- Pagination Bottom Controls -->
+        @await Html.PartialAsync("_Pagination", Model)
+
+    </div>
+    <!--  End AJAX Container -->
+}
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        // Attach event handler to pagination links
+        // We use 'document' and 'on' for dynamically loaded links (event delegation)
+        $(document).on("click", ".pagination a", function (e) {
+            e.preventDefault(); // Stop normal link click behavior (no full page reload)
+
+            var url = $(this).attr("href"); // Get the URL from the clicked link
+            if (!url) return; // If URL is somehow empty, stop
+
+            $("#pagination-container").fadeTo(200, 0.5); // Fade out container slightly to show "loading" effect
+
+            // Send an AJAX GET request to the URL
+            $.get(url, function (data) {
+                // 'data' is the full HTML returned by the server
+
+                // Extract the part we care about: #pagination-container from the new HTML
+                var newHtml = $(data).find("#pagination-container").html();
+
+                // Replace the old container's content with the new content
+                $("#pagination-container").html(newHtml);
+
+                $("#pagination-container").fadeTo(200, 1); // Fade back in to full opacity
+
+                // After we load the new posts via Ajax focus the top pagination
+                $('html, body').animate({
+                        scrollTop: $(".pagination-container").offset().top - 20 // little margin
+                }, 1);
+
+            });
+        });
+    });
+    </script>
+}
