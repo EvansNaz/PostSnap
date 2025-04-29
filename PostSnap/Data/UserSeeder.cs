@@ -48,7 +48,6 @@ namespace PostSnap.Data
                         .RuleFor(p => p.Title, f => f.Lorem.Sentence(6))
                         .RuleFor(p => p.Body, f => f.Lorem.Paragraphs(2))
                         .RuleFor(p => p.CreatedAt, f => f.Date.Past())
-                        .RuleFor(p => p.LastModifiedAt, f => f.Date.Recent())
                         .RuleFor(p => p.Status, f => f.PickRandom<PostStatus>())
                         .RuleFor(p => p.IsDeleted, f => false)
                         .RuleFor(p => p.UserId, f => user.Id);
@@ -93,6 +92,26 @@ namespace PostSnap.Data
 
 
             await context.SaveChangesAsync();
+
+            // Seed Comments for Posts
+            if (!await context.Comments.AnyAsync())
+            {
+                var allUsers = await context.Users.ToListAsync();
+                var allPosts = await context.Posts.ToListAsync();
+
+                var commentFaker = new Faker<Comment>()
+                    .RuleFor(c => c.Content, f => f.Lorem.Sentences(f.Random.Int(1, 3)))
+                    .RuleFor(c => c.CreatedAt, f => f.Date.Past(1))
+                    .RuleFor(c => c.IsDeleted, f => false)
+                    .RuleFor(c => c.UserId, f => f.PickRandom(allUsers).Id)
+                    .RuleFor(c => c.PostId, f => f.PickRandom(allPosts).Id);
+
+                var comments = commentFaker.Generate(60); // You can adjust count
+
+                await context.Comments.AddRangeAsync(comments);
+                await context.SaveChangesAsync();
+            }
+
         }
     }
 }
